@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Episode } from '@/pages/Index';
+import { Episode } from '@/hooks/useEpisodes';
 
 interface TimelineSectionProps {
   episodes: Episode[];
@@ -26,7 +26,7 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
               key={episode.id}
               className="absolute transform -translate-x-1/2 cursor-pointer group"
               style={{ 
-                left: `${(index / (sortedEpisodes.length - 1)) * 100}%`,
+                left: `${(index / Math.max(1, sortedEpisodes.length - 1)) * 100}%`,
                 top: '-60px'
               }}
               onClick={() => onEpisodeClick(episode)}
@@ -57,7 +57,7 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
 
       {/* Mobile Timeline */}
       <div className="lg:hidden space-y-6">
-        {sortedEpisodes.map((episode, index) => (
+        {sortedEpisodes.map((episode) => (
           <div
             key={episode.id}
             className="flex items-center gap-4 p-4 retro-card rounded-lg cursor-pointer hover:scale-105 transition-transform"
@@ -85,7 +85,7 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
 
             <div className="flex-shrink-0">
               <img
-                src={episode.coverImage}
+                src={episode.cover_image_url || 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&h=400&fit=crop&crop=center'}
                 alt={episode.title}
                 className="w-16 h-16 object-cover rounded border-2 border-retro-blue"
               />
@@ -99,6 +99,9 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
           <div className="text-6xl mb-4">🎮</div>
           <p className="font-mono text-gray-400">
             Nenhum episódio disponível ainda...
+          </p>
+          <p className="font-mono text-gray-500 text-sm mt-2">
+            Use o painel administrativo para adicionar episódios
           </p>
         </div>
       )}

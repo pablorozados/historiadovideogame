@@ -2,83 +2,14 @@
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Play, Calendar, ExternalLink } from 'lucide-react';
+import { Play, Calendar, ExternalLink, Settings } from 'lucide-react';
 import TimelineSection from '@/components/TimelineSection';
 import Header from '@/components/Header';
-import AdminPanel from '@/components/AdminPanel';
-
-// Mock data for demonstration
-const mockEpisodes = [
-  {
-    id: '1',
-    title: 'O Nascimento dos Arcades',
-    year: 1972,
-    description: 'A história de Pong e como tudo começou no mundo dos videogames.',
-    listenUrl: 'https://spotify.com/episode1',
-    coverImage: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&h=400&fit=crop&crop=center',
-    date: '1972-11-29'
-  },
-  {
-    id: '2',
-    title: 'A Revolução do Atari 2600',
-    year: 1977,
-    description: 'Como o Atari 2600 trouxe os videogames para casa e mudou tudo.',
-    listenUrl: 'https://spotify.com/episode2',
-    coverImage: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=400&fit=crop&crop=center',
-    date: '1977-09-11'
-  },
-  {
-    id: '3',
-    title: 'O Crash de 1983',
-    year: 1983,
-    description: 'A grande crise da indústria dos videogames e suas consequências.',
-    listenUrl: 'https://spotify.com/episode3',
-    coverImage: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=400&fit=crop&crop=center',
-    date: '1983-12-01'
-  },
-  {
-    id: '4',
-    title: 'A Era Dourada do NES',
-    year: 1985,
-    description: 'Como o Nintendo Entertainment System salvou a indústria.',
-    listenUrl: 'https://spotify.com/episode4',
-    coverImage: 'https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?w=400&h=400&fit=crop&crop=center',
-    date: '1985-10-18'
-  },
-  {
-    id: '5',
-    title: 'A Guerra dos 16-bits',
-    year: 1989,
-    description: 'Sega Genesis vs Super Nintendo: a batalha épica dos anos 90.',
-    listenUrl: 'https://spotify.com/episode5',
-    coverImage: 'https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=400&h=400&fit=crop&crop=center',
-    date: '1989-08-14'
-  },
-  {
-    id: '6',
-    title: 'A Revolução PlayStation',
-    year: 1995,
-    description: 'Como a Sony mudou o jogo com CDs e gráficos 3D.',
-    listenUrl: 'https://spotify.com/episode6',
-    coverImage: 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=400&h=400&fit=crop&crop=center',
-    date: '1995-12-03'
-  },
-];
-
-export interface Episode {
-  id: string;
-  title: string;
-  year: number;
-  description: string;
-  listenUrl: string;
-  coverImage: string;
-  date: string;
-}
+import { useEpisodes, Episode } from '@/hooks/useEpisodes';
 
 const Index = () => {
   const [selectedEpisode, setSelectedEpisode] = useState<Episode | null>(null);
-  const [episodes, setEpisodes] = useState<Episode[]>(mockEpisodes);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const { episodes, loading } = useEpisodes();
 
   const handleEpisodeClick = (episode: Episode) => {
     setSelectedEpisode(episode);
@@ -88,31 +19,20 @@ const Index = () => {
     setSelectedEpisode(null);
   };
 
-  const addEpisode = (newEpisode: Omit<Episode, 'id'>) => {
-    const episode: Episode = {
-      ...newEpisode,
-      id: Date.now().toString(),
-    };
-    setEpisodes(prev => [...prev, episode].sort((a, b) => a.year - b.year));
-  };
-
-  if (isAdmin) {
-    return (
-      <AdminPanel 
-        episodes={episodes}
-        onAddEpisode={addEpisode}
-        onBackToSite={() => setIsAdmin(false)}
-      />
-    );
-  }
-
   return (
     <div className="min-h-screen bg-retro-black text-white">
-      <Header onAdminClick={() => setIsAdmin(true)} />
+      <Header onAdminClick={() => window.location.href = '/admin/login'} />
       
       <main className="container mx-auto px-4 py-8">
-        {/* Hero Section */}
+        {/* Hero Section with Logo */}
         <section className="text-center mb-16 animate-fade-in-up">
+          <div className="mb-8">
+            <img 
+              src="https://i.postimg.cc/wBSDgDnh/a-dita-histpria-do-videogame.jpg"
+              alt="A Dita História do Videogame"
+              className="mx-auto max-w-md w-full h-auto rounded-lg border-2 border-retro-yellow shadow-lg shadow-retro-yellow/20"
+            />
+          </div>
           <h1 className="font-retro font-black text-4xl md:text-6xl lg:text-7xl mb-6 text-retro-yellow drop-shadow-lg">
             A DITA HISTÓRIA DO
             <br />
@@ -126,10 +46,19 @@ const Index = () => {
         </section>
 
         {/* Timeline Section */}
-        <TimelineSection 
-          episodes={episodes} 
-          onEpisodeClick={handleEpisodeClick} 
-        />
+        {loading ? (
+          <div className="text-center py-16">
+            <div className="animate-spin text-4xl mb-4">🎮</div>
+            <p className="font-mono text-gray-400">
+              Carregando episódios...
+            </p>
+          </div>
+        ) : (
+          <TimelineSection 
+            episodes={episodes} 
+            onEpisodeClick={handleEpisodeClick} 
+          />
+        )}
 
         {/* Statistics */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
@@ -164,7 +93,7 @@ const Index = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <img
-                    src={selectedEpisode.coverImage}
+                    src={selectedEpisode.cover_image_url || 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&h=400&fit=crop&crop=center'}
                     alt={selectedEpisode.title}
                     className="w-full h-48 object-cover rounded-lg border-2 border-retro-blue"
                   />
@@ -180,14 +109,16 @@ const Index = () => {
                     {selectedEpisode.description}
                   </p>
                   
-                  <Button
-                    onClick={() => window.open(selectedEpisode.listenUrl, '_blank')}
-                    className="retro-button w-full font-mono font-bold text-retro-black"
-                  >
-                    <Play size={16} className="mr-2" />
-                    Escutar Episódio
-                    <ExternalLink size={16} className="ml-2" />
-                  </Button>
+                  {selectedEpisode.listen_url && (
+                    <Button
+                      onClick={() => window.open(selectedEpisode.listen_url!, '_blank')}
+                      className="retro-button w-full font-mono font-bold text-retro-black"
+                    >
+                      <Play size={16} className="mr-2" />
+                      Escutar Episódio
+                      <ExternalLink size={16} className="ml-2" />
+                    </Button>
+                  )}
                 </div>
               </div>
             </>
