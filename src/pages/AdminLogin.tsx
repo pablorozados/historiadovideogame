@@ -14,41 +14,60 @@ const AdminLogin = () => {
   const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { user, signIn, signUp } = useAuth();
+  const { user, loading, signIn, signUp } = useAuth();
   const { toast } = useToast();
 
+  // Aguardar carregamento da autenticação
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-retro-black flex items-center justify-center">
+        <div className="text-retro-yellow font-mono">Carregando...</div>
+      </div>
+    );
+  }
+
+  // Redirecionar se já logado
   if (user) {
     return <Navigate to="/admin" replace />;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (isLoading) return;
+    
     setIsLoading(true);
 
     try {
+      console.log('Attempting to', isSignUp ? 'sign up' : 'sign in', 'with email:', email);
+      
       const { error } = isSignUp 
         ? await signUp(email, password)
         : await signIn(email, password);
 
       if (error) {
+        console.error('Auth error:', error);
         toast({
           title: "Erro",
-          description: error.message,
+          description: error.message || "Erro na autenticação",
           variant: "destructive",
         });
+        setIsLoading(false);
       } else if (isSignUp) {
         toast({
           title: "Sucesso",
           description: "Conta criada! Verifique seu email para confirmar.",
         });
+        setIsLoading(false);
       }
+      // Para sign in, o redirect é feito automaticamente no hook
     } catch (error) {
+      console.error('Unexpected error:', error);
       toast({
         title: "Erro",
         description: "Erro inesperado. Tente novamente.",
         variant: "destructive",
       });
-    } finally {
       setIsLoading(false);
     }
   };
@@ -75,6 +94,7 @@ const AdminLogin = () => {
                 className="bg-black border-retro-blue text-white"
                 placeholder="admin@podcast.com"
                 required
+                disabled={isLoading}
               />
             </div>
             <div>
@@ -89,6 +109,7 @@ const AdminLogin = () => {
                 className="bg-black border-retro-blue text-white"
                 placeholder="••••••••"
                 required
+                disabled={isLoading}
               />
             </div>
             <div className="flex gap-2">
@@ -97,6 +118,7 @@ const AdminLogin = () => {
                 onClick={() => window.location.href = '/'}
                 variant="outline"
                 className="flex-1 border-gray-600 text-gray-300"
+                disabled={isLoading}
               >
                 <ArrowLeft size={16} className="mr-2" />
                 Voltar
@@ -115,6 +137,7 @@ const AdminLogin = () => {
                 type="button"
                 onClick={() => setIsSignUp(!isSignUp)}
                 className="text-retro-blue hover:text-retro-yellow font-mono text-sm"
+                disabled={isLoading}
               >
                 {isSignUp ? 'Já tem conta? Fazer login' : 'Primeira vez? Criar conta'}
               </button>
