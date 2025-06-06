@@ -12,11 +12,8 @@ const Header = ({ onAdminClick }: HeaderProps) => {
     <header className="border-b border-gray-800 bg-black/50 backdrop-blur-sm sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         <div className="flex items-center gap-4">
-          <div className="w-10 h-10 bg-retro-yellow rounded border-2 border-retro-blue flex items-center justify-center">
-            <span className="font-retro font-black text-retro-black text-lg">G</span>
-          </div>
-          <span className="font-retro font-bold text-xl text-retro-yellow hidden sm:block">
-            A DITA HISTÓRIA
+          <span className="font-retro font-bold text-xl text-retro-yellow">
+            A DITA HISTÓRIA DO VIDEOGAME
           </span>
         </div>
         

@@ -68,6 +68,60 @@ export const useEpisodes = () => {
     }
   };
 
+  const updateEpisode = async (id: string, episodeData: Partial<Omit<Episode, 'id' | 'created_at' | 'updated_at'>>) => {
+    try {
+      const { data, error } = await supabase
+        .from('episodes')
+        .update({ ...episodeData, updated_at: new Date().toISOString() })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setEpisodes(prev => prev.map(ep => ep.id === id ? data : ep).sort((a, b) => a.year - b.year));
+      toast({
+        title: "Sucesso",
+        description: "Episódio atualizado com sucesso!",
+      });
+      return { data, error: null };
+    } catch (error) {
+      console.error('Error updating episode:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao atualizar episódio",
+        variant: "destructive",
+      });
+      return { data: null, error };
+    }
+  };
+
+  const deleteEpisode = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('episodes')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setEpisodes(prev => prev.filter(ep => ep.id !== id));
+      toast({
+        title: "Sucesso",
+        description: "Episódio excluído com sucesso!",
+      });
+      return { error: null };
+    } catch (error) {
+      console.error('Error deleting episode:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao excluir episódio",
+        variant: "destructive",
+      });
+      return { error };
+    }
+  };
+
   const uploadImage = async (file: File): Promise<string | null> => {
     try {
       const fileExt = file.name.split('.').pop();
@@ -104,6 +158,8 @@ export const useEpisodes = () => {
     episodes,
     loading,
     addEpisode,
+    updateEpisode,
+    deleteEpisode,
     uploadImage,
     refetch: fetchEpisodes,
   };

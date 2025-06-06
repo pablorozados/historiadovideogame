@@ -33,11 +33,6 @@ const Index = () => {
               className="mx-auto max-w-md w-full h-auto rounded-lg border-2 border-retro-yellow shadow-lg shadow-retro-yellow/20"
             />
           </div>
-          <h1 className="font-retro font-black text-4xl md:text-6xl lg:text-7xl mb-6 text-retro-yellow drop-shadow-lg">
-            A DITA HISTÓRIA DO
-            <br />
-            <span className="text-retro-blue">VIDEOGAME</span>
-          </h1>
           <p className="font-mono text-lg md:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
             Uma jornada épica através da história dos videogames, episódio por episódio, 
             ano por ano. Explore nossa timeline interativa e descubra como os games 

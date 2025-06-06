@@ -6,14 +6,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Plus, Upload, LogOut, Trash2 } from 'lucide-react';
+import { ArrowLeft, Plus, Upload, LogOut, Trash2, Edit } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { useEpisodes } from '@/hooks/useEpisodes';
+import { useEpisodes, Episode } from '@/hooks/useEpisodes';
 import { useToast } from '@/hooks/use-toast';
 
 const Admin = () => {
   const { user, signOut } = useAuth();
-  const { episodes, addEpisode, uploadImage } = useEpisodes();
+  const { episodes, addEpisode, updateEpisode, deleteEpisode, uploadImage } = useEpisodes();
   const { toast } = useToast();
   
   const [formData, setFormData] = useState({
@@ -25,24 +25,59 @@ const Admin = () => {
   });
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editingEpisode, setEditingEpisode] = useState<Episode | null>(null);
 
   if (!user) {
     return <Navigate to="/admin/login" replace />;
   }
+
+  const resetForm = () => {
+    setFormData({
+      title: '',
+      description: '',
+      listen_url: '',
+      historical_date: '',
+      year: new Date().getFullYear(),
+    });
+    setCoverFile(null);
+    setEditingEpisode(null);
+    
+    // Reset file input
+    const fileInput = document.getElementById('cover-upload') as HTMLInputElement;
+    if (fileInput) fileInput.value = '';
+  };
+
+  const handleEdit = (episode: Episode) => {
+    setEditingEpisode(episode);
+    setFormData({
+      title: episode.title,
+      description: episode.description || '',
+      listen_url: episode.listen_url || '',
+      historical_date: episode.historical_date,
+      year: episode.year,
+    });
+  };
+
+  const handleDelete = async (episodeId: string) => {
+    if (window.confirm('Tem certeza que deseja excluir este episódio?')) {
+      await deleteEpisode(episodeId);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
-      let coverImageUrl = null;
+      let coverImageUrl = editingEpisode?.cover_image_url || null;
       
       if (coverFile) {
-        coverImageUrl = await uploadImage(coverFile);
-        if (!coverImageUrl) {
+        const uploadedUrl = await uploadImage(coverFile);
+        if (!uploadedUrl) {
           setIsSubmitting(false);
           return;
         }
+        coverImageUrl = uploadedUrl;
       }
 
       const episodeData = {
@@ -54,22 +89,17 @@ const Admin = () => {
         year: formData.year,
       };
 
-      const { error } = await addEpisode(episodeData);
+      let error;
+      if (editingEpisode) {
+        const result = await updateEpisode(editingEpisode.id, episodeData);
+        error = result.error;
+      } else {
+        const result = await addEpisode(episodeData);
+        error = result.error;
+      }
       
       if (!error) {
-        // Reset form
-        setFormData({
-          title: '',
-          description: '',
-          listen_url: '',
-          historical_date: '',
-          year: new Date().getFullYear(),
-        });
-        setCoverFile(null);
-        
-        // Reset file input
-        const fileInput = document.getElementById('cover-upload') as HTMLInputElement;
-        if (fileInput) fileInput.value = '';
+        resetForm();
       }
     } catch (error) {
       console.error('Error submitting episode:', error);
@@ -111,12 +141,12 @@ const Admin = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Add Episode Form */}
+          {/* Add/Edit Episode Form */}
           <Card className="retro-card">
             <CardHeader>
               <CardTitle className="font-retro text-xl text-retro-blue flex items-center gap-2">
-                <Plus size={20} />
-                Adicionar Episódio
+                {editingEpisode ? <Edit size={20} /> : <Plus size={20} />}
+                {editingEpisode ? 'Editar Episódio' : 'Adicionar Episódio'}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -146,8 +176,8 @@ const Admin = () => {
                       value={formData.year}
                       onChange={(e) => setFormData(prev => ({ ...prev, year: parseInt(e.target.value) }))}
                       className="bg-black border-retro-blue text-white"
-                      placeholder="1977"
-                      min="1970"
+                      placeholder="1940"
+                      min="1900"
                       max="2030"
                       required
                     />
@@ -212,16 +242,33 @@ const Admin = () => {
                       Arquivo selecionado: {coverFile.name}
                     </p>
                   )}
+                  {editingEpisode && !coverFile && editingEpisode.cover_image_url && (
+                    <p className="text-sm text-gray-400 mt-1">
+                      Imagem atual será mantida se nenhuma nova for selecionada
+                    </p>
+                  )}
                 </div>
 
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="retro-button w-full font-mono font-bold"
-                >
-                  <Plus size={16} className="mr-2" />
-                  {isSubmitting ? 'Adicionando...' : 'Adicionar Episódio'}
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="retro-button flex-1 font-mono font-bold"
+                  >
+                    {editingEpisode ? <Edit size={16} className="mr-2" /> : <Plus size={16} className="mr-2" />}
+                    {isSubmitting ? 'Salvando...' : editingEpisode ? 'Atualizar Episódio' : 'Adicionar Episódio'}
+                  </Button>
+                  {editingEpisode && (
+                    <Button
+                      type="button"
+                      onClick={resetForm}
+                      variant="outline"
+                      className="border-gray-500 text-gray-400"
+                    >
+                      Cancelar
+                    </Button>
+                  )}
+                </div>
               </form>
             </CardContent>
           </Card>
@@ -262,13 +309,33 @@ const Admin = () => {
                           </a>
                         )}
                       </div>
-                      {episode.cover_image_url && (
-                        <img 
-                          src={episode.cover_image_url} 
-                          alt={episode.title}
-                          className="w-12 h-12 object-cover rounded border border-retro-blue"
-                        />
-                      )}
+                      <div className="flex flex-col gap-2">
+                        {episode.cover_image_url && (
+                          <img 
+                            src={episode.cover_image_url} 
+                            alt={episode.title}
+                            className="w-12 h-12 object-cover rounded border border-retro-blue"
+                          />
+                        )}
+                        <div className="flex gap-1">
+                          <Button
+                            onClick={() => handleEdit(episode)}
+                            size="sm"
+                            variant="outline"
+                            className="border-retro-blue text-retro-blue hover:bg-retro-blue hover:text-black p-1"
+                          >
+                            <Edit size={12} />
+                          </Button>
+                          <Button
+                            onClick={() => handleDelete(episode.id)}
+                            size="sm"
+                            variant="outline"
+                            className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white p-1"
+                          >
+                            <Trash2 size={12} />
+                          </Button>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 ))}

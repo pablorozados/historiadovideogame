@@ -17,7 +17,7 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
       </h2>
       
       {/* Desktop Timeline */}
-      <div className="hidden lg:block relative">
+      <div className="hidden lg:block relative px-8">
         <div className="timeline-line h-1 w-full mb-8 rounded-full"></div>
         
         <div className="relative">
@@ -26,7 +26,7 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
               key={episode.id}
               className="absolute transform -translate-x-1/2 cursor-pointer group"
               style={{ 
-                left: `${(index / Math.max(1, sortedEpisodes.length - 1)) * 100}%`,
+                left: `${8 + (index / Math.max(1, sortedEpisodes.length - 1)) * 84}%`,
                 top: '-60px'
               }}
               onClick={() => onEpisodeClick(episode)}
