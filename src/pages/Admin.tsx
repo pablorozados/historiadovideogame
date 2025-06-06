@@ -13,8 +13,8 @@ import { useToast } from '@/hooks/use-toast';
 import MultipleTimestamps, { TimelineEvent } from '@/components/MultipleTimestamps';
 
 const Admin = () => {
-  const { user, signOut } = useAuth();
-  const { episodes, addEpisode, updateEpisode, deleteEpisode, uploadImage } = useEpisodes();
+  const { user, signOut, loading: authLoading } = useAuth();
+  const { episodes, loading: episodesLoading, addEpisode, updateEpisode, deleteEpisode, uploadImage } = useEpisodes();
   const { toast } = useToast();
   
   const [formData, setFormData] = useState({
@@ -28,6 +28,17 @@ const Admin = () => {
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingEpisode, setEditingEpisode] = useState<Episode | null>(null);
+
+  console.log('Auth loading:', authLoading, 'User:', user);
+  console.log('Episodes loading:', episodesLoading, 'Episodes count:', episodes.length);
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-retro-black flex items-center justify-center">
+        <div className="text-retro-yellow font-mono">Carregando autenticação...</div>
+      </div>
+    );
+  }
 
   if (!user) {
     return <Navigate to="/admin/login" replace />;
@@ -119,7 +130,6 @@ const Admin = () => {
 
   const handleSignOut = async () => {
     await signOut();
-    window.location.href = '/';
   };
 
   return (
@@ -149,228 +159,234 @@ const Admin = () => {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Add/Edit Episode Form */}
-          <Card className="retro-card">
-            <CardHeader>
-              <CardTitle className="font-retro text-xl text-retro-blue flex items-center gap-2">
-                {editingEpisode ? <Edit size={20} /> : <Plus size={20} />}
-                {editingEpisode ? 'Editar Episódio' : 'Adicionar Episódio'}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
-                  <Label htmlFor="title" className="font-mono text-gray-300">
-                    Nome do Episódio *
-                  </Label>
-                  <Input
-                    id="title"
-                    value={formData.title}
-                    onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                    className="bg-black border-retro-blue text-white"
-                    placeholder="Ex: A Era do Atari 2600"
-                    required
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
+        {episodesLoading ? (
+          <div className="text-center py-16">
+            <div className="text-retro-yellow font-mono">Carregando episódios...</div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Add/Edit Episode Form */}
+            <Card className="retro-card">
+              <CardHeader>
+                <CardTitle className="font-retro text-xl text-retro-blue flex items-center gap-2">
+                  {editingEpisode ? <Edit size={20} /> : <Plus size={20} />}
+                  {editingEpisode ? 'Editar Episódio' : 'Adicionar Episódio'}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
-                    <Label htmlFor="year" className="font-mono text-gray-300">
-                      Ano Histórico *
+                    <Label htmlFor="title" className="font-mono text-gray-300">
+                      Nome do Episódio *
                     </Label>
                     <Input
-                      id="year"
-                      type="number"
-                      value={formData.year}
-                      onChange={(e) => setFormData(prev => ({ ...prev, year: parseInt(e.target.value) }))}
+                      id="title"
+                      value={formData.title}
+                      onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
                       className="bg-black border-retro-blue text-white"
-                      placeholder="1940"
-                      min="1900"
-                      max="2030"
+                      placeholder="Ex: A Era do Atari 2600"
                       required
                     />
                   </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="year" className="font-mono text-gray-300">
+                        Ano Histórico *
+                      </Label>
+                      <Input
+                        id="year"
+                        type="number"
+                        value={formData.year}
+                        onChange={(e) => setFormData(prev => ({ ...prev, year: parseInt(e.target.value) }))}
+                        className="bg-black border-retro-blue text-white"
+                        placeholder="1940"
+                        min="1900"
+                        max="2030"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="historical_date" className="font-mono text-gray-300">
+                        Data Específica *
+                      </Label>
+                      <Input
+                        id="historical_date"
+                        type="date"
+                        value={formData.historical_date}
+                        onChange={(e) => setFormData(prev => ({ ...prev, historical_date: e.target.value }))}
+                        className="bg-black border-retro-blue text-white"
+                        required
+                      />
+                    </div>
+                  </div>
+
                   <div>
-                    <Label htmlFor="historical_date" className="font-mono text-gray-300">
-                      Data Específica *
+                    <Label htmlFor="description" className="font-mono text-gray-300">
+                      Descrição *
                     </Label>
-                    <Input
-                      id="historical_date"
-                      type="date"
-                      value={formData.historical_date}
-                      onChange={(e) => setFormData(prev => ({ ...prev, historical_date: e.target.value }))}
+                    <Textarea
+                      id="description"
+                      value={formData.description}
+                      onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                       className="bg-black border-retro-blue text-white"
+                      placeholder="Descreva o episódio..."
+                      rows={3}
                       required
                     />
                   </div>
-                </div>
 
-                <div>
-                  <Label htmlFor="description" className="font-mono text-gray-300">
-                    Descrição *
-                  </Label>
-                  <Textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                    className="bg-black border-retro-blue text-white"
-                    placeholder="Descreva o episódio..."
-                    rows={3}
-                    required
-                  />
-                </div>
+                  <div>
+                    <Label htmlFor="listen_url" className="font-mono text-gray-300">
+                      Link para Escutar
+                    </Label>
+                    <Input
+                      id="listen_url"
+                      type="url"
+                      value={formData.listen_url}
+                      onChange={(e) => setFormData(prev => ({ ...prev, listen_url: e.target.value }))}
+                      className="bg-black border-retro-blue text-white"
+                      placeholder="https://spotify.com/..."
+                    />
+                  </div>
 
-                <div>
-                  <Label htmlFor="listen_url" className="font-mono text-gray-300">
-                    Link para Escutar
-                  </Label>
-                  <Input
-                    id="listen_url"
-                    type="url"
-                    value={formData.listen_url}
-                    onChange={(e) => setFormData(prev => ({ ...prev, listen_url: e.target.value }))}
-                    className="bg-black border-retro-blue text-white"
-                    placeholder="https://spotify.com/..."
-                  />
-                </div>
+                  <div>
+                    <Label htmlFor="cover-upload" className="font-mono text-gray-300">
+                      Imagem de Capa
+                    </Label>
+                    <Input
+                      id="cover-upload"
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => setCoverFile(e.target.files?.[0] || null)}
+                      className="bg-black border-retro-blue text-white"
+                    />
+                    {coverFile && (
+                      <p className="text-sm text-retro-yellow mt-1">
+                        Arquivo selecionado: {coverFile.name}
+                      </p>
+                    )}
+                    {editingEpisode && !coverFile && editingEpisode.cover_image_url && (
+                      <p className="text-sm text-gray-400 mt-1">
+                        Imagem atual será mantida se nenhuma nova for selecionada
+                      </p>
+                    )}
+                  </div>
 
-                <div>
-                  <Label htmlFor="cover-upload" className="font-mono text-gray-300">
-                    Imagem de Capa
-                  </Label>
-                  <Input
-                    id="cover-upload"
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setCoverFile(e.target.files?.[0] || null)}
-                    className="bg-black border-retro-blue text-white"
-                  />
-                  {coverFile && (
-                    <p className="text-sm text-retro-yellow mt-1">
-                      Arquivo selecionado: {coverFile.name}
-                    </p>
-                  )}
-                  {editingEpisode && !coverFile && editingEpisode.cover_image_url && (
-                    <p className="text-sm text-gray-400 mt-1">
-                      Imagem atual será mantida se nenhuma nova for selecionada
-                    </p>
-                  )}
-                </div>
+                  <div>
+                    <MultipleTimestamps
+                      events={timelineEvents}
+                      onEventsChange={setTimelineEvents}
+                      onImageUpload={handleTimelineImageUpload}
+                    />
+                  </div>
 
-                <div>
-                  <MultipleTimestamps
-                    events={timelineEvents}
-                    onEventsChange={setTimelineEvents}
-                    onImageUpload={handleTimelineImageUpload}
-                  />
-                </div>
-
-                <div className="flex gap-2">
-                  <Button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="retro-button flex-1 font-mono font-bold"
-                  >
-                    {editingEpisode ? <Edit size={16} className="mr-2" /> : <Plus size={16} className="mr-2" />}
-                    {isSubmitting ? 'Salvando...' : editingEpisode ? 'Atualizar Episódio' : 'Adicionar Episódio'}
-                  </Button>
-                  {editingEpisode && (
+                  <div className="flex gap-2">
                     <Button
-                      type="button"
-                      onClick={resetForm}
-                      variant="outline"
-                      className="border-gray-500 text-gray-400"
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="retro-button flex-1 font-mono font-bold"
                     >
-                      Cancelar
+                      {editingEpisode ? <Edit size={16} className="mr-2" /> : <Plus size={16} className="mr-2" />}
+                      {isSubmitting ? 'Salvando...' : editingEpisode ? 'Atualizar Episódio' : 'Adicionar Episódio'}
                     </Button>
-                  )}
-                </div>
-              </form>
-            </CardContent>
-          </Card>
+                    {editingEpisode && (
+                      <Button
+                        type="button"
+                        onClick={resetForm}
+                        variant="outline"
+                        className="border-gray-500 text-gray-400"
+                      >
+                        Cancelar
+                      </Button>
+                    )}
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
 
-          {/* Episodes List */}
-          <Card className="retro-card">
-            <CardHeader>
-              <CardTitle className="font-retro text-xl text-retro-yellow">
-                Episódios ({episodes.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4 max-h-96 overflow-y-auto">
-                {episodes.map((episode) => (
-                  <div
-                    key={episode.id}
-                    className="bg-black/50 border border-retro-blue rounded p-3"
-                  >
-                    <div className="flex justify-between items-start gap-2">
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-mono text-sm text-retro-yellow truncate">
-                          {episode.title}
-                        </h3>
-                        <p className="text-xs text-gray-400">
-                          Ano: {episode.year} | Data: {new Date(episode.historical_date).toLocaleDateString('pt-BR')}
-                        </p>
-                        <p className="text-xs text-gray-300 line-clamp-2 mt-1">
-                          {episode.description}
-                        </p>
-                        {episode.timeline_events && episode.timeline_events.length > 0 && (
-                          <p className="text-xs text-retro-blue mt-1">
-                            {episode.timeline_events.length} evento(s) na timeline
+            {/* Episodes List */}
+            <Card className="retro-card">
+              <CardHeader>
+                <CardTitle className="font-retro text-xl text-retro-yellow">
+                  Episódios ({episodes.length})
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4 max-h-96 overflow-y-auto">
+                  {episodes.map((episode) => (
+                    <div
+                      key={episode.id}
+                      className="bg-black/50 border border-retro-blue rounded p-3"
+                    >
+                      <div className="flex justify-between items-start gap-2">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-mono text-sm text-retro-yellow truncate">
+                            {episode.title}
+                          </h3>
+                          <p className="text-xs text-gray-400">
+                            Ano: {episode.year} | Data: {new Date(episode.historical_date).toLocaleDateString('pt-BR')}
                           </p>
-                        )}
-                        {episode.listen_url && (
-                          <a 
-                            href={episode.listen_url} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-xs text-retro-blue hover:text-retro-yellow"
-                          >
-                            Link para escutar
-                          </a>
-                        )}
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        {episode.cover_image_url && (
-                          <img 
-                            src={episode.cover_image_url} 
-                            alt={episode.title}
-                            className="w-12 h-12 object-cover rounded border border-retro-blue"
-                          />
-                        )}
-                        <div className="flex gap-1">
-                          <Button
-                            onClick={() => handleEdit(episode)}
-                            size="sm"
-                            variant="outline"
-                            className="border-retro-blue text-retro-blue hover:bg-retro-blue hover:text-black p-1"
-                          >
-                            <Edit size={12} />
-                          </Button>
-                          <Button
-                            onClick={() => handleDelete(episode.id)}
-                            size="sm"
-                            variant="outline"
-                            className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white p-1"
-                          >
-                            <Trash2 size={12} />
-                          </Button>
+                          <p className="text-xs text-gray-300 line-clamp-2 mt-1">
+                            {episode.description}
+                          </p>
+                          {episode.timeline_events && episode.timeline_events.length > 0 && (
+                            <p className="text-xs text-retro-blue mt-1">
+                              {episode.timeline_events.length} evento(s) na timeline
+                            </p>
+                          )}
+                          {episode.listen_url && (
+                            <a 
+                              href={episode.listen_url} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-xs text-retro-blue hover:text-retro-yellow"
+                            >
+                              Link para escutar
+                            </a>
+                          )}
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          {episode.cover_image_url && (
+                            <img 
+                              src={episode.cover_image_url} 
+                              alt={episode.title}
+                              className="w-12 h-12 object-cover rounded border border-retro-blue"
+                            />
+                          )}
+                          <div className="flex gap-1">
+                            <Button
+                              onClick={() => handleEdit(episode)}
+                              size="sm"
+                              variant="outline"
+                              className="border-retro-blue text-retro-blue hover:bg-retro-blue hover:text-black p-1"
+                            >
+                              <Edit size={12} />
+                            </Button>
+                            <Button
+                              onClick={() => handleDelete(episode.id)}
+                              size="sm"
+                              variant="outline"
+                              className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white p-1"
+                            >
+                              <Trash2 size={12} />
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-                
-                {episodes.length === 0 && (
-                  <p className="text-gray-400 text-center py-8 font-mono">
-                    Nenhum episódio cadastrado
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+                  ))}
+                  
+                  {episodes.length === 0 && (
+                    <p className="text-gray-400 text-center py-8 font-mono">
+                      Nenhum episódio cadastrado
+                    </p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
     </div>
   );

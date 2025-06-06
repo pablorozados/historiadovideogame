@@ -30,19 +30,43 @@ export const useEpisodes = () => {
 
   const fetchEpisodes = async () => {
     try {
+      console.log('Fetching episodes...');
       const { data, error } = await supabase
         .from('episodes')
         .select('*')
         .order('year', { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+      
+      console.log('Raw episodes data:', data);
       
       // Parse timeline_events JSON field
-      const episodesWithEvents = (data || []).map(episode => ({
-        ...episode,
-        timeline_events: episode.timeline_events ? JSON.parse(episode.timeline_events) : []
-      }));
+      const episodesWithEvents = (data || []).map(episode => {
+        let timelineEvents: TimelineEvent[] = [];
+        
+        try {
+          if (episode.timeline_events) {
+            if (typeof episode.timeline_events === 'string') {
+              timelineEvents = JSON.parse(episode.timeline_events);
+            } else if (Array.isArray(episode.timeline_events)) {
+              timelineEvents = episode.timeline_events;
+            }
+          }
+        } catch (parseError) {
+          console.error('Error parsing timeline_events for episode:', episode.id, parseError);
+          timelineEvents = [];
+        }
+        
+        return {
+          ...episode,
+          timeline_events: timelineEvents
+        };
+      });
       
+      console.log('Processed episodes:', episodesWithEvents);
       setEpisodes(episodesWithEvents);
     } catch (error) {
       console.error('Error fetching episodes:', error);
