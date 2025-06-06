@@ -17,6 +17,7 @@ export type Database = {
           historical_date: string
           id: string
           listen_url: string | null
+          timeline_events: string | null
           title: string
           updated_at: string
           year: number
@@ -28,6 +29,7 @@ export type Database = {
           historical_date: string
           id?: string
           listen_url?: string | null
+          timeline_events?: string | null
           title: string
           updated_at?: string
           year: number
@@ -39,6 +41,7 @@ export type Database = {
           historical_date?: string
           id?: string
           listen_url?: string | null
+          timeline_events?: string | null
           title?: string
           updated_at?: string
           year?: number

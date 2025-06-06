@@ -6,10 +6,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Plus, Upload, LogOut, Trash2, Edit } from 'lucide-react';
+import { ArrowLeft, Plus, LogOut, Trash2, Edit } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useEpisodes, Episode } from '@/hooks/useEpisodes';
 import { useToast } from '@/hooks/use-toast';
+import MultipleTimestamps, { TimelineEvent } from '@/components/MultipleTimestamps';
 
 const Admin = () => {
   const { user, signOut } = useAuth();
@@ -23,6 +24,7 @@ const Admin = () => {
     historical_date: '',
     year: new Date().getFullYear(),
   });
+  const [timelineEvents, setTimelineEvents] = useState<TimelineEvent[]>([]);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingEpisode, setEditingEpisode] = useState<Episode | null>(null);
@@ -39,6 +41,7 @@ const Admin = () => {
       historical_date: '',
       year: new Date().getFullYear(),
     });
+    setTimelineEvents([]);
     setCoverFile(null);
     setEditingEpisode(null);
     
@@ -56,12 +59,17 @@ const Admin = () => {
       historical_date: episode.historical_date,
       year: episode.year,
     });
+    setTimelineEvents(episode.timeline_events || []);
   };
 
   const handleDelete = async (episodeId: string) => {
     if (window.confirm('Tem certeza que deseja excluir este episódio?')) {
       await deleteEpisode(episodeId);
     }
+  };
+
+  const handleTimelineImageUpload = async (eventId: string, file: File): Promise<string | null> => {
+    return await uploadImage(file, 'timeline-events');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -87,6 +95,7 @@ const Admin = () => {
         cover_image_url: coverImageUrl,
         historical_date: formData.historical_date,
         year: formData.year,
+        timeline_events: timelineEvents,
       };
 
       let error;
@@ -115,7 +124,7 @@ const Admin = () => {
 
   return (
     <div className="min-h-screen bg-retro-black p-4">
-      <div className="container mx-auto max-w-6xl">
+      <div className="container mx-auto max-w-7xl">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
             <Button
@@ -150,7 +159,7 @@ const Admin = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <Label htmlFor="title" className="font-mono text-gray-300">
                     Nome do Episódio *
@@ -249,6 +258,14 @@ const Admin = () => {
                   )}
                 </div>
 
+                <div>
+                  <MultipleTimestamps
+                    events={timelineEvents}
+                    onEventsChange={setTimelineEvents}
+                    onImageUpload={handleTimelineImageUpload}
+                  />
+                </div>
+
                 <div className="flex gap-2">
                   <Button
                     type="submit"
@@ -298,6 +315,11 @@ const Admin = () => {
                         <p className="text-xs text-gray-300 line-clamp-2 mt-1">
                           {episode.description}
                         </p>
+                        {episode.timeline_events && episode.timeline_events.length > 0 && (
+                          <p className="text-xs text-retro-blue mt-1">
+                            {episode.timeline_events.length} evento(s) na timeline
+                          </p>
+                        )}
                         {episode.listen_url && (
                           <a 
                             href={episode.listen_url} 
