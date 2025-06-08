@@ -22,7 +22,6 @@ const Admin = () => {
     description: '',
     listen_url: '',
     historical_date: '',
-    year: new Date().getFullYear(),
   });
   const [timelineEvents, setTimelineEvents] = useState<TimelineEvent[]>([]);
   const [coverFile, setCoverFile] = useState<File | null>(null);
@@ -50,7 +49,6 @@ const Admin = () => {
       description: '',
       listen_url: '',
       historical_date: '',
-      year: new Date().getFullYear(),
     });
     setTimelineEvents([]);
     setCoverFile(null);
@@ -68,7 +66,6 @@ const Admin = () => {
       description: episode.description || '',
       listen_url: episode.listen_url || '',
       historical_date: episode.historical_date,
-      year: episode.year,
     });
     setTimelineEvents(episode.timeline_events || []);
   };
@@ -99,13 +96,16 @@ const Admin = () => {
         coverImageUrl = uploadedUrl;
       }
 
+      // Derivar o ano da data específica
+      const year = new Date(formData.historical_date).getFullYear();
+
       const episodeData = {
         title: formData.title,
         description: formData.description,
         listen_url: formData.listen_url,
         cover_image_url: coverImageUrl,
         historical_date: formData.historical_date,
-        year: formData.year,
+        year: year,
         timeline_events: timelineEvents,
       };
 
@@ -189,36 +189,21 @@ const Admin = () => {
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="year" className="font-mono text-gray-300">
-                        Ano Histórico *
-                      </Label>
-                      <Input
-                        id="year"
-                        type="number"
-                        value={formData.year}
-                        onChange={(e) => setFormData(prev => ({ ...prev, year: parseInt(e.target.value) }))}
-                        className="bg-black border-retro-blue text-white"
-                        placeholder="1940"
-                        min="1900"
-                        max="2030"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="historical_date" className="font-mono text-gray-300">
-                        Data Específica *
-                      </Label>
-                      <Input
-                        id="historical_date"
-                        type="date"
-                        value={formData.historical_date}
-                        onChange={(e) => setFormData(prev => ({ ...prev, historical_date: e.target.value }))}
-                        className="bg-black border-retro-blue text-white"
-                        required
-                      />
-                    </div>
+                  <div>
+                    <Label htmlFor="historical_date" className="font-mono text-gray-300">
+                      Data do Episódio *
+                    </Label>
+                    <Input
+                      id="historical_date"
+                      type="date"
+                      value={formData.historical_date}
+                      onChange={(e) => setFormData(prev => ({ ...prev, historical_date: e.target.value }))}
+                      className="bg-black border-retro-blue text-white"
+                      required
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Esta data será usada para posicionar o episódio principal na timeline
+                    </p>
                   </div>
 
                   <div>
@@ -262,14 +247,28 @@ const Admin = () => {
                       className="bg-black border-retro-blue text-white"
                     />
                     {coverFile && (
-                      <p className="text-sm text-retro-yellow mt-1">
-                        Arquivo selecionado: {coverFile.name}
-                      </p>
+                      <div className="mt-2">
+                        <p className="text-sm text-retro-yellow mb-2">
+                          Arquivo selecionado: {coverFile.name}
+                        </p>
+                        <img 
+                          src={URL.createObjectURL(coverFile)}
+                          alt="Preview"
+                          className="w-20 h-20 object-cover rounded border border-retro-blue"
+                        />
+                      </div>
                     )}
                     {editingEpisode && !coverFile && editingEpisode.cover_image_url && (
-                      <p className="text-sm text-gray-400 mt-1">
-                        Imagem atual será mantida se nenhuma nova for selecionada
-                      </p>
+                      <div className="mt-2">
+                        <p className="text-sm text-gray-400 mb-2">
+                          Imagem atual será mantida se nenhuma nova for selecionada
+                        </p>
+                        <img 
+                          src={editingEpisode.cover_image_url}
+                          alt="Capa atual"
+                          className="w-20 h-20 object-cover rounded border border-retro-blue"
+                        />
+                      </div>
                     )}
                   </div>
 
@@ -325,7 +324,7 @@ const Admin = () => {
                             {episode.title}
                           </h3>
                           <p className="text-xs text-gray-400">
-                            Ano: {episode.year} | Data: {new Date(episode.historical_date).toLocaleDateString('pt-BR')}
+                            Data: {new Date(episode.historical_date).toLocaleDateString('pt-BR')} | Ano: {episode.year}
                           </p>
                           <p className="text-xs text-gray-300 line-clamp-2 mt-1">
                             {episode.description}
@@ -351,7 +350,7 @@ const Admin = () => {
                             <img 
                               src={episode.cover_image_url} 
                               alt={episode.title}
-                              className="w-12 h-12 object-cover rounded border border-retro-blue"
+                              className="w-16 h-16 object-cover rounded border border-retro-blue"
                             />
                           )}
                           <div className="flex gap-1">

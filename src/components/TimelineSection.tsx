@@ -8,17 +8,33 @@ interface TimelineSectionProps {
 }
 
 const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => {
-  // Expandir todos os eventos da timeline de todos os episódios
-  const allTimelineEvents = episodes.flatMap(episode => 
-    episode.timeline_events?.map(event => ({
-      ...event,
-      episode,
-      year: new Date(event.date).getFullYear()
-    })) || []
-  );
+  // Expandir todos os eventos da timeline de todos os episódios + o próprio episódio
+  const allTimelineEvents = episodes.flatMap(episode => {
+    const events = [
+      // Adicionar o próprio episódio como evento principal
+      {
+        id: `episode-${episode.id}`,
+        date: episode.historical_date,
+        title: episode.title,
+        description: episode.description || '',
+        image_url: episode.cover_image_url,
+        episode,
+        year: episode.year,
+        isMainEpisode: true
+      },
+      // Adicionar eventos específicos da timeline
+      ...(episode.timeline_events?.map(event => ({
+        ...event,
+        episode,
+        year: new Date(event.date).getFullYear(),
+        isMainEpisode: false
+      })) || [])
+    ];
+    return events;
+  });
   
-  // Ordenar por ano
-  const sortedEvents = allTimelineEvents.sort((a, b) => a.year - b.year);
+  // Ordenar por data
+  const sortedEvents = allTimelineEvents.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   
   return (
     <section id="timeline" className="mb-16">
@@ -42,18 +58,53 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
               onClick={() => onEpisodeClick(event.episode)}
             >
               {/* Timeline Point */}
-              <div className="timeline-point w-6 h-6 bg-retro-yellow rounded-full border-4 border-retro-blue relative">
-                <div className="absolute -top-16 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div className="bg-black border-2 border-retro-yellow rounded-lg p-3 whitespace-nowrap max-w-48">
-                    <div className="font-retro text-sm text-retro-yellow">{event.year}</div>
-                    <div className="font-mono text-xs text-gray-300 truncate">{event.title}</div>
-                    <div className="font-mono text-xs text-gray-400 mt-1">De: {event.episode.title}</div>
+              <div className={`timeline-point w-6 h-6 rounded-full border-4 relative ${
+                event.isMainEpisode 
+                  ? 'bg-retro-yellow border-retro-blue' 
+                  : 'bg-retro-blue border-retro-yellow'
+              }`}>
+                <div className="absolute -top-20 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+                  <div className="bg-black/95 border-2 border-retro-yellow rounded-lg p-4 whitespace-normal w-64 max-w-64">
+                    <div className="font-retro text-sm text-retro-yellow mb-2">
+                      {new Date(event.date).toLocaleDateString('pt-BR')}
+                    </div>
+                    <div className="font-mono text-sm text-white mb-2 break-words">
+                      {event.title}
+                    </div>
+                    {event.description && (
+                      <div className="font-mono text-xs text-gray-300 mb-2 break-words">
+                        {event.description}
+                      </div>
+                    )}
+                    <div className="font-mono text-xs text-gray-400 mb-3 break-words">
+                      - Escute em {event.episode.title}
+                    </div>
                     {event.image_url && (
-                      <img 
-                        src={event.image_url} 
-                        alt={event.title}
-                        className="w-16 h-16 object-cover rounded border border-retro-blue mt-2"
-                      />
+                      <div className="relative">
+                        <img 
+                          src={event.image_url} 
+                          alt={event.title}
+                          className="w-20 h-20 object-cover rounded border border-retro-blue cursor-pointer hover:scale-110 transition-transform"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            // Criar modal para ampliar imagem
+                            const modal = document.createElement('div');
+                            modal.className = 'fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4';
+                            modal.onclick = () => modal.remove();
+                            
+                            const img = document.createElement('img');
+                            img.src = event.image_url!;
+                            img.className = 'max-w-full max-h-full object-contain rounded border-2 border-retro-yellow';
+                            img.onclick = (e) => e.stopPropagation();
+                            
+                            modal.appendChild(img);
+                            document.body.appendChild(modal);
+                          }}
+                        />
+                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-retro-yellow rounded-full text-xs flex items-center justify-center text-black font-bold">
+                          🔍
+                        </div>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -61,7 +112,9 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
               
               {/* Year Label */}
               <div className="absolute top-8 left-1/2 transform -translate-x-1/2 text-center">
-                <div className="font-retro text-lg text-retro-yellow font-bold">
+                <div className={`font-retro text-lg font-bold ${
+                  event.isMainEpisode ? 'text-retro-yellow' : 'text-retro-blue'
+                }`}>
                   {event.year}
                 </div>
                 <div className="font-mono text-xs text-gray-400 max-w-24 truncate">
@@ -82,8 +135,14 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
             onClick={() => onEpisodeClick(event.episode)}
           >
             <div className="flex-shrink-0">
-              <div className="timeline-point w-12 h-12 bg-retro-yellow rounded-full border-4 border-retro-blue flex items-center justify-center">
-                <span className="font-retro text-sm text-retro-black font-bold">
+              <div className={`timeline-point w-12 h-12 rounded-full border-4 flex items-center justify-center ${
+                event.isMainEpisode 
+                  ? 'bg-retro-yellow border-retro-blue' 
+                  : 'bg-retro-blue border-retro-yellow'
+              }`}>
+                <span className={`font-retro text-sm font-bold ${
+                  event.isMainEpisode ? 'text-retro-black' : 'text-retro-yellow'
+                }`}>
                   {event.year.toString().slice(-2)}
                 </span>
               </div>
@@ -93,11 +152,13 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
               <h3 className="font-retro text-lg text-retro-yellow truncate">
                 {event.title}
               </h3>
+              {event.description && (
+                <p className="text-sm text-gray-300 line-clamp-2 mt-1">
+                  {event.description}
+                </p>
+              )}
               <p className="font-mono text-sm text-gray-400">
-                Ano: {event.year} | Episódio: {event.episode.title}
-              </p>
-              <p className="text-sm text-gray-300 line-clamp-2 mt-1">
-                {event.episode.description}
+                {new Date(event.date).toLocaleDateString('pt-BR')} | Episódio: {event.episode.title}
               </p>
             </div>
 
