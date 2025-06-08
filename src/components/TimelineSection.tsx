@@ -42,7 +42,7 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
     
     // Criar modal para ampliar imagem
     const modal = document.createElement('div');
-    modal.className = 'fixed inset-0 bg-black/95 z-[100] flex items-center justify-center p-4 cursor-pointer';
+    modal.className = 'fixed inset-0 bg-black/95 z-[200] flex items-center justify-center p-4 cursor-pointer';
     modal.onclick = () => modal.remove();
     
     const img = document.createElement('img');
@@ -81,9 +81,9 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
                 top: '-60px'
               }}
             >
-              {/* Área de hover expandida para facilitar interação */}
+              {/* Área de hover expandida */}
               <div 
-                className="cursor-pointer relative w-16 h-16 flex items-center justify-center z-10"
+                className="cursor-pointer relative w-16 h-16 flex items-center justify-center"
                 onClick={() => onEpisodeClick(event.episode)}
               >
                 {/* Timeline Point */}
@@ -92,9 +92,9 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
                     ? 'bg-retro-yellow border-retro-blue' 
                     : 'bg-retro-blue border-retro-yellow'
                 }`}>
-                  {/* Tooltip com fundo sólido */}
-                  <div className="absolute -top-32 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-[60] pointer-events-none">
-                    <div className="bg-black/95 border-2 border-retro-yellow rounded-lg p-4 whitespace-normal w-72 shadow-2xl backdrop-blur-sm">
+                  {/* Tooltip com z-index muito alto */}
+                  <div className="absolute -top-32 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-[150] pointer-events-none">
+                    <div className="bg-black border-2 border-retro-yellow rounded-lg p-4 whitespace-normal w-72 shadow-2xl">
                       <div className="font-retro text-sm text-retro-yellow mb-2">
                         {new Date(event.date).toLocaleDateString('pt-BR')}
                       </div>
@@ -110,18 +110,16 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
                         - Escute em {event.episode.title}
                       </div>
                       {event.image_url && (
-                        <div className="relative group/image">
+                        <div className="relative">
                           <img 
                             src={event.image_url} 
                             alt={event.title}
-                            className="w-24 h-24 object-cover rounded border border-retro-blue cursor-pointer hover:scale-105 transition-transform"
+                            className="w-24 h-24 object-cover rounded border border-retro-blue cursor-pointer hover:scale-105 transition-transform pointer-events-auto"
                             onClick={(e) => handleImageClick(event.image_url!, event.title, e)}
+                            title="Clique para ampliar"
                           />
-                          <div className="absolute -top-1 -right-1 w-4 h-4 bg-retro-yellow rounded-full text-xs flex items-center justify-center text-black font-bold pointer-events-none">
-                            🔍
-                          </div>
-                          <div className="absolute inset-0 bg-retro-yellow/20 rounded opacity-0 group-hover/image:opacity-100 transition-opacity pointer-events-none flex items-center justify-center">
-                            <span className="text-white text-xs font-bold">Clique para ampliar</span>
+                          <div className="absolute inset-0 bg-retro-yellow/20 rounded opacity-0 hover:opacity-100 transition-opacity pointer-events-none flex items-center justify-center">
+                            <span className="text-white text-xs font-bold">🔍</span>
                           </div>
                         </div>
                       )}
@@ -130,7 +128,7 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
                 </div>
               </div>
               
-              {/* Year Label - Posicionado mais abaixo para não interferir */}
+              {/* Year Label */}
               <div className="absolute top-12 left-1/2 transform -translate-x-1/2 text-center pointer-events-none">
                 <div className={`font-retro text-lg font-bold ${
                   event.isMainEpisode ? 'text-retro-yellow' : 'text-retro-blue'

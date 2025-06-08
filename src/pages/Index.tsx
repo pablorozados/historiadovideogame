@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Play, Calendar, ExternalLink, Settings } from 'lucide-react';
+import { Play, Calendar, ExternalLink } from 'lucide-react';
 import TimelineSection from '@/components/TimelineSection';
 import Header from '@/components/Header';
 import { useEpisodes, Episode } from '@/hooks/useEpisodes';
@@ -40,6 +40,24 @@ const Index = () => {
           </p>
         </section>
 
+        {/* Statistics - Movido para antes da timeline */}
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+          <div className="retro-card p-6 text-center rounded-lg">
+            <div className="text-3xl font-bold text-retro-yellow mb-2">{episodes.length}</div>
+            <div className="text-gray-300 font-mono">Episódios</div>
+          </div>
+          <div className="retro-card p-6 text-center rounded-lg">
+            <div className="text-3xl font-bold text-retro-blue mb-2">
+              {episodes.length > 0 ? episodes[episodes.length - 1].year - episodes[0].year + 1 : 0}
+            </div>
+            <div className="text-gray-300 font-mono">Anos de História</div>
+          </div>
+          <div className="retro-card p-6 text-center rounded-lg">
+            <div className="text-3xl font-bold text-retro-yellow mb-2">∞</div>
+            <div className="text-gray-300 font-mono">Nostalgia</div>
+          </div>
+        </section>
+
         {/* Timeline Section */}
         {loading ? (
           <div className="text-center py-16">
@@ -54,29 +72,11 @@ const Index = () => {
             onEpisodeClick={handleEpisodeClick} 
           />
         )}
-
-        {/* Statistics */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
-          <div className="retro-card p-6 text-center rounded-lg">
-            <div className="text-3xl font-bold text-retro-yellow mb-2">{episodes.length}</div>
-            <div className="text-gray-300 font-mono">Episódios</div>
-          </div>
-          <div className="retro-card p-6 text-center rounded-lg">
-            <div className="text-3xl font-bold text-retro-blue mb-2">
-              {episodes.length > 0 ? episodes[episodes.length - 1].year - episodes[0].year : 0}
-            </div>
-            <div className="text-gray-300 font-mono">Anos de História</div>
-          </div>
-          <div className="retro-card p-6 text-center rounded-lg">
-            <div className="text-3xl font-bold text-retro-yellow mb-2">∞</div>
-            <div className="text-gray-300 font-mono">Nostalgia</div>
-          </div>
-        </section>
       </main>
 
       {/* Episode Detail Modal */}
       <Dialog open={!!selectedEpisode} onOpenChange={closeDialog}>
-        <DialogContent className="retro-card border-retro-yellow max-w-2xl z-[70]">
+        <DialogContent className="retro-card border-retro-yellow max-w-2xl z-[100]">
           {selectedEpisode && (
             <>
               <DialogHeader>
