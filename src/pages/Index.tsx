@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Play, Calendar, ExternalLink, Settings } from 'lucide-react';
 import TimelineSection from '@/components/TimelineSection';
@@ -83,6 +83,9 @@ const Index = () => {
                 <DialogTitle className="font-retro text-2xl text-retro-yellow mb-4">
                   {selectedEpisode.title}
                 </DialogTitle>
+                <DialogDescription className="sr-only">
+                  Detalhes do episódio {selectedEpisode.title}
+                </DialogDescription>
               </DialogHeader>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -90,7 +93,7 @@ const Index = () => {
                   <img
                     src={selectedEpisode.cover_image_url || 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&h=400&fit=crop&crop=center'}
                     alt={selectedEpisode.title}
-                    className="w-full h-48 object-cover rounded-lg border-2 border-retro-blue"
+                    className="w-full aspect-square object-cover rounded-lg border-2 border-retro-blue"
                   />
                 </div>
                 

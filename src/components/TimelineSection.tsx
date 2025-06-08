@@ -50,75 +50,87 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
           {sortedEvents.map((event, index) => (
             <div
               key={`${event.episode.id}-${event.id}`}
-              className="absolute transform -translate-x-1/2 cursor-pointer group"
+              className="absolute transform -translate-x-1/2 group"
               style={{ 
                 left: `${8 + (index / Math.max(1, sortedEvents.length - 1)) * 84}%`,
                 top: '-60px'
               }}
-              onClick={() => onEpisodeClick(event.episode)}
             >
-              {/* Timeline Point */}
-              <div className={`timeline-point w-6 h-6 rounded-full border-4 relative ${
-                event.isMainEpisode 
-                  ? 'bg-retro-yellow border-retro-blue' 
-                  : 'bg-retro-blue border-retro-yellow'
-              }`}>
-                <div className="absolute -top-20 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
-                  <div className="bg-black/95 border-2 border-retro-yellow rounded-lg p-4 whitespace-normal w-64 max-w-64">
-                    <div className="font-retro text-sm text-retro-yellow mb-2">
-                      {new Date(event.date).toLocaleDateString('pt-BR')}
-                    </div>
-                    <div className="font-mono text-sm text-white mb-2 break-words">
-                      {event.title}
-                    </div>
-                    {event.description && (
-                      <div className="font-mono text-xs text-gray-300 mb-2 break-words">
-                        {event.description}
+              {/* Área de hover expandida para facilitar interação */}
+              <div 
+                className="cursor-pointer relative w-16 h-16 flex items-center justify-center"
+                onClick={() => onEpisodeClick(event.episode)}
+              >
+                {/* Timeline Point */}
+                <div className={`timeline-point w-6 h-6 rounded-full border-4 relative ${
+                  event.isMainEpisode 
+                    ? 'bg-retro-yellow border-retro-blue' 
+                    : 'bg-retro-blue border-retro-yellow'
+                }`}>
+                  {/* Tooltip com fundo sólido */}
+                  <div className="absolute -top-32 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 pointer-events-none">
+                    <div className="bg-black border-2 border-retro-yellow rounded-lg p-4 whitespace-normal w-72 shadow-2xl">
+                      <div className="font-retro text-sm text-retro-yellow mb-2">
+                        {new Date(event.date).toLocaleDateString('pt-BR')}
                       </div>
-                    )}
-                    <div className="font-mono text-xs text-gray-400 mb-3 break-words">
-                      - Escute em {event.episode.title}
-                    </div>
-                    {event.image_url && (
-                      <div className="relative">
-                        <img 
-                          src={event.image_url} 
-                          alt={event.title}
-                          className="w-20 h-20 object-cover rounded border border-retro-blue cursor-pointer hover:scale-110 transition-transform"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            // Criar modal para ampliar imagem
-                            const modal = document.createElement('div');
-                            modal.className = 'fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4';
-                            modal.onclick = () => modal.remove();
-                            
-                            const img = document.createElement('img');
-                            img.src = event.image_url!;
-                            img.className = 'max-w-full max-h-full object-contain rounded border-2 border-retro-yellow';
-                            img.onclick = (e) => e.stopPropagation();
-                            
-                            modal.appendChild(img);
-                            document.body.appendChild(modal);
-                          }}
-                        />
-                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-retro-yellow rounded-full text-xs flex items-center justify-center text-black font-bold">
-                          🔍
+                      <div className="font-mono text-sm text-white mb-2 break-words">
+                        {event.title}
+                      </div>
+                      {event.description && (
+                        <div className="font-mono text-xs text-gray-300 mb-2 break-words">
+                          {event.description}
                         </div>
+                      )}
+                      <div className="font-mono text-xs text-gray-400 mb-3 break-words">
+                        - Escute em {event.episode.title}
                       </div>
-                    )}
+                      {event.image_url && (
+                        <div className="relative">
+                          <img 
+                            src={event.image_url} 
+                            alt={event.title}
+                            className="w-24 h-24 object-cover rounded border border-retro-blue cursor-pointer hover:scale-110 transition-transform"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // Criar modal para ampliar imagem
+                              const modal = document.createElement('div');
+                              modal.className = 'fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4 cursor-pointer';
+                              modal.onclick = () => modal.remove();
+                              
+                              const img = document.createElement('img');
+                              img.src = event.image_url!;
+                              img.className = 'max-w-[90vw] max-h-[90vh] object-contain rounded border-2 border-retro-yellow';
+                              img.onclick = (e) => e.stopPropagation();
+                              
+                              const closeBtn = document.createElement('div');
+                              closeBtn.className = 'absolute top-4 right-4 text-white text-2xl cursor-pointer hover:text-retro-yellow';
+                              closeBtn.innerHTML = '✕';
+                              closeBtn.onclick = () => modal.remove();
+                              
+                              modal.appendChild(img);
+                              modal.appendChild(closeBtn);
+                              document.body.appendChild(modal);
+                            }}
+                          />
+                          <div className="absolute -top-1 -right-1 w-4 h-4 bg-retro-yellow rounded-full text-xs flex items-center justify-center text-black font-bold">
+                            🔍
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
               
-              {/* Year Label */}
-              <div className="absolute top-8 left-1/2 transform -translate-x-1/2 text-center">
+              {/* Year Label - Posicionado mais abaixo para não interferir */}
+              <div className="absolute top-12 left-1/2 transform -translate-x-1/2 text-center pointer-events-none">
                 <div className={`font-retro text-lg font-bold ${
                   event.isMainEpisode ? 'text-retro-yellow' : 'text-retro-blue'
                 }`}>
                   {event.year}
                 </div>
-                <div className="font-mono text-xs text-gray-400 max-w-24 truncate">
-                  {event.title}
+                <div className="font-mono text-xs text-gray-400 max-w-20 truncate">
+                  {event.title.length > 15 ? `${event.title.slice(0, 15)}...` : event.title}
                 </div>
               </div>
             </div>
