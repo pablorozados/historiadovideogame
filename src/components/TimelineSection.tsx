@@ -36,6 +36,31 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
   // Ordenar por data
   const sortedEvents = allTimelineEvents.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   
+  const handleImageClick = (imageUrl: string, title: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    
+    // Criar modal para ampliar imagem
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black/95 z-[100] flex items-center justify-center p-4 cursor-pointer';
+    modal.onclick = () => modal.remove();
+    
+    const img = document.createElement('img');
+    img.src = imageUrl;
+    img.alt = title;
+    img.className = 'max-w-[90vw] max-h-[90vh] object-contain rounded border-2 border-retro-yellow';
+    img.onclick = (e) => e.stopPropagation();
+    
+    const closeBtn = document.createElement('div');
+    closeBtn.className = 'absolute top-4 right-4 text-white text-2xl cursor-pointer hover:text-retro-yellow font-bold bg-black/50 w-10 h-10 rounded-full flex items-center justify-center';
+    closeBtn.innerHTML = '✕';
+    closeBtn.onclick = () => modal.remove();
+    
+    modal.appendChild(img);
+    modal.appendChild(closeBtn);
+    document.body.appendChild(modal);
+  };
+  
   return (
     <section id="timeline" className="mb-16">
       <h2 className="font-retro text-3xl md:text-4xl text-center mb-12 text-retro-yellow">
@@ -58,7 +83,7 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
             >
               {/* Área de hover expandida para facilitar interação */}
               <div 
-                className="cursor-pointer relative w-16 h-16 flex items-center justify-center"
+                className="cursor-pointer relative w-16 h-16 flex items-center justify-center z-10"
                 onClick={() => onEpisodeClick(event.episode)}
               >
                 {/* Timeline Point */}
@@ -68,8 +93,8 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
                     : 'bg-retro-blue border-retro-yellow'
                 }`}>
                   {/* Tooltip com fundo sólido */}
-                  <div className="absolute -top-32 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 pointer-events-none">
-                    <div className="bg-black border-2 border-retro-yellow rounded-lg p-4 whitespace-normal w-72 shadow-2xl">
+                  <div className="absolute -top-32 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-[60] pointer-events-none">
+                    <div className="bg-black/95 border-2 border-retro-yellow rounded-lg p-4 whitespace-normal w-72 shadow-2xl backdrop-blur-sm">
                       <div className="font-retro text-sm text-retro-yellow mb-2">
                         {new Date(event.date).toLocaleDateString('pt-BR')}
                       </div>
@@ -85,35 +110,18 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
                         - Escute em {event.episode.title}
                       </div>
                       {event.image_url && (
-                        <div className="relative">
+                        <div className="relative group/image">
                           <img 
                             src={event.image_url} 
                             alt={event.title}
-                            className="w-24 h-24 object-cover rounded border border-retro-blue cursor-pointer hover:scale-110 transition-transform"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              // Criar modal para ampliar imagem
-                              const modal = document.createElement('div');
-                              modal.className = 'fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4 cursor-pointer';
-                              modal.onclick = () => modal.remove();
-                              
-                              const img = document.createElement('img');
-                              img.src = event.image_url!;
-                              img.className = 'max-w-[90vw] max-h-[90vh] object-contain rounded border-2 border-retro-yellow';
-                              img.onclick = (e) => e.stopPropagation();
-                              
-                              const closeBtn = document.createElement('div');
-                              closeBtn.className = 'absolute top-4 right-4 text-white text-2xl cursor-pointer hover:text-retro-yellow';
-                              closeBtn.innerHTML = '✕';
-                              closeBtn.onclick = () => modal.remove();
-                              
-                              modal.appendChild(img);
-                              modal.appendChild(closeBtn);
-                              document.body.appendChild(modal);
-                            }}
+                            className="w-24 h-24 object-cover rounded border border-retro-blue cursor-pointer hover:scale-105 transition-transform"
+                            onClick={(e) => handleImageClick(event.image_url!, event.title, e)}
                           />
-                          <div className="absolute -top-1 -right-1 w-4 h-4 bg-retro-yellow rounded-full text-xs flex items-center justify-center text-black font-bold">
+                          <div className="absolute -top-1 -right-1 w-4 h-4 bg-retro-yellow rounded-full text-xs flex items-center justify-center text-black font-bold pointer-events-none">
                             🔍
+                          </div>
+                          <div className="absolute inset-0 bg-retro-yellow/20 rounded opacity-0 group-hover/image:opacity-100 transition-opacity pointer-events-none flex items-center justify-center">
+                            <span className="text-white text-xs font-bold">Clique para ampliar</span>
                           </div>
                         </div>
                       )}
@@ -178,7 +186,14 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
               <img
                 src={event.image_url || event.episode.cover_image_url || 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&h=400&fit=crop&crop=center'}
                 alt={event.title}
-                className="w-16 h-16 object-cover rounded border-2 border-retro-blue"
+                className="w-16 h-16 object-cover rounded border-2 border-retro-blue cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const imageUrl = event.image_url || event.episode.cover_image_url;
+                  if (imageUrl) {
+                    handleImageClick(imageUrl, event.title, e);
+                  }
+                }}
               />
             </div>
           </div>
