@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef } from 'react';
 import Header from '@/components/Header';
 
@@ -125,7 +124,7 @@ const About = () => {
             é uma jornada profunda pelas conexões inesperadas que moldaram nossa paixão.
           </p>
 
-          <div className="bg-gradient-to-r from-blue-50 to-blue-100 border-l-4 border-blue-500 p-6 my-8 rounded-lg italic text-lg relative">
+          <div className="bg-gradient-to-r from-blue-50 to-blue-100 border-l-4 border-blue-500 p-6 my-8 rounded-lg italic text-lg relative text-gray-900">
             <div className="text-4xl text-blue-500 absolute -top-2 left-4 font-serif">"</div>
             A história não é uma linha como parece, ela é uma teia. 
             Muitas vezes, uma coisa nada a ver tem ligação com um acontecimento, mudando totalmente nossa história.
