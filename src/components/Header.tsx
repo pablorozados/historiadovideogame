@@ -2,19 +2,22 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Settings } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
 
 interface HeaderProps {
   onAdminClick: () => void;
 }
 
 const Header = ({ onAdminClick }: HeaderProps) => {
+  const location = useLocation();
+
   return (
     <header className="border-b border-gray-800 bg-black/50 backdrop-blur-sm sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         <div className="flex items-center gap-4">
-          <span className="font-retro font-bold text-xl text-retro-yellow">
+          <Link to="/" className="font-retro font-bold text-xl text-retro-yellow hover:text-retro-yellow/80 transition-colors">
             A DITA HISTÓRIA DO VIDEOGAME
-          </span>
+          </Link>
         </div>
         
         <nav className="flex items-center gap-6">
@@ -24,12 +27,16 @@ const Header = ({ onAdminClick }: HeaderProps) => {
           >
             Timeline
           </a>
-          <a 
-            href="#sobre" 
-            className="font-mono text-gray-300 hover:text-retro-yellow transition-colors hidden sm:block"
+          <Link 
+            to="/sobre" 
+            className={`font-mono transition-colors ${
+              location.pathname === '/sobre' 
+                ? 'text-retro-yellow' 
+                : 'text-gray-300 hover:text-retro-yellow'
+            }`}
           >
             Sobre
-          </a>
+          </Link>
           <Button
             onClick={onAdminClick}
             variant="ghost"
