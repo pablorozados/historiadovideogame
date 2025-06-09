@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Episode } from '@/hooks/useEpisodes';
 
 interface TimelineSectionProps {
@@ -8,6 +8,10 @@ interface TimelineSectionProps {
 }
 
 const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => {
+  const [hoveredEvent, setHoveredEvent] = useState<any>(null);
+  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   // Expandir todos os eventos da timeline de todos os episódios + o próprio episódio
   const allTimelineEvents = episodes.flatMap(episode => {
     const events = [
@@ -42,7 +46,7 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
     
     // Criar modal para ampliar imagem
     const modal = document.createElement('div');
-    modal.className = 'fixed inset-0 bg-black/95 z-[200] flex items-center justify-center p-4 cursor-pointer';
+    modal.className = 'fixed inset-0 bg-black/95 z-[10000] flex items-center justify-center p-4 cursor-pointer';
     modal.onclick = () => modal.remove();
     
     const img = document.createElement('img');
@@ -60,6 +64,43 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
     modal.appendChild(closeBtn);
     document.body.appendChild(modal);
   };
+
+  const handleMouseEnter = (event: any, e: React.MouseEvent) => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+    
+    const rect = e.currentTarget.getBoundingClientRect();
+    setTooltipPosition({
+      x: rect.left + rect.width / 2,
+      y: rect.top - 10
+    });
+    setHoveredEvent(event);
+  };
+
+  const handleMouseLeave = () => {
+    hoverTimeoutRef.current = setTimeout(() => {
+      setHoveredEvent(null);
+    }, 100);
+  };
+
+  const handleTooltipMouseEnter = () => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+  };
+
+  const handleTooltipMouseLeave = () => {
+    setHoveredEvent(null);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+    };
+  }, []);
   
   return (
     <section id="timeline" className="mb-16">
@@ -75,7 +116,7 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
           {sortedEvents.map((event, index) => (
             <div
               key={`${event.episode.id}-${event.id}`}
-              className="absolute transform -translate-x-1/2 group"
+              className="absolute transform -translate-x-1/2"
               style={{ 
                 left: `${8 + (index / Math.max(1, sortedEvents.length - 1)) * 84}%`,
                 top: '-60px'
@@ -85,6 +126,8 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
               <div 
                 className="cursor-pointer relative w-16 h-16 flex items-center justify-center"
                 onClick={() => onEpisodeClick(event.episode)}
+                onMouseEnter={(e) => handleMouseEnter(event, e)}
+                onMouseLeave={handleMouseLeave}
               >
                 {/* Timeline Point */}
                 <div className={`timeline-point w-6 h-6 rounded-full border-4 relative ${
@@ -92,39 +135,6 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
                     ? 'bg-retro-yellow border-retro-blue' 
                     : 'bg-retro-blue border-retro-yellow'
                 }`}>
-                  {/* Tooltip com z-index muito alto */}
-                  <div className="absolute -top-32 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-[150] pointer-events-none">
-                    <div className="bg-black border-2 border-retro-yellow rounded-lg p-4 whitespace-normal w-72 shadow-2xl">
-                      <div className="font-retro text-sm text-retro-yellow mb-2">
-                        {new Date(event.date).toLocaleDateString('pt-BR')}
-                      </div>
-                      <div className="font-mono text-sm text-white mb-2 break-words">
-                        {event.title}
-                      </div>
-                      {event.description && (
-                        <div className="font-mono text-xs text-gray-300 mb-2 break-words">
-                          {event.description}
-                        </div>
-                      )}
-                      <div className="font-mono text-xs text-gray-400 mb-3 break-words">
-                        - Escute em {event.episode.title}
-                      </div>
-                      {event.image_url && (
-                        <div className="relative">
-                          <img 
-                            src={event.image_url} 
-                            alt={event.title}
-                            className="w-24 h-24 object-cover rounded border border-retro-blue cursor-pointer hover:scale-105 transition-transform pointer-events-auto"
-                            onClick={(e) => handleImageClick(event.image_url!, event.title, e)}
-                            title="Clique para ampliar"
-                          />
-                          <div className="absolute inset-0 bg-retro-yellow/20 rounded opacity-0 hover:opacity-100 transition-opacity pointer-events-none flex items-center justify-center">
-                            <span className="text-white text-xs font-bold">🔍</span>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
                 </div>
               </div>
               
@@ -207,6 +217,50 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
           <p className="font-mono text-gray-500 text-sm mt-2">
             Use o painel administrativo para adicionar episódios com eventos
           </p>
+        </div>
+      )}
+
+      {/* Tooltip renderizado como portal no documento */}
+      {hoveredEvent && (
+        <div 
+          className="fixed pointer-events-none z-[50]"
+          style={{
+            left: tooltipPosition.x,
+            top: tooltipPosition.y,
+            transform: 'translate(-50%, -100%)'
+          }}
+        >
+          <div 
+            className="bg-black border-2 border-retro-yellow rounded-lg p-4 whitespace-normal w-72 shadow-2xl pointer-events-auto"
+            onMouseEnter={handleTooltipMouseEnter}
+            onMouseLeave={handleTooltipMouseLeave}
+          >
+            <div className="font-retro text-sm text-retro-yellow mb-2">
+              {new Date(hoveredEvent.date).toLocaleDateString('pt-BR')}
+            </div>
+            <div className="font-mono text-sm text-white mb-2 break-words">
+              {hoveredEvent.title}
+            </div>
+            {hoveredEvent.description && (
+              <div className="font-mono text-xs text-gray-300 mb-2 break-words">
+                {hoveredEvent.description}
+              </div>
+            )}
+            <div className="font-mono text-xs text-gray-400 mb-3 break-words">
+              - Escute em {hoveredEvent.episode.title}
+            </div>
+            {hoveredEvent.image_url && (
+              <div className="relative">
+                <img 
+                  src={hoveredEvent.image_url} 
+                  alt={hoveredEvent.title}
+                  className="w-24 h-24 object-cover rounded border border-retro-blue cursor-pointer hover:scale-105 transition-transform"
+                  onClick={(e) => handleImageClick(hoveredEvent.image_url!, hoveredEvent.title, e)}
+                  title="Clique para ampliar"
+                />
+              </div>
+            )}
+          </div>
         </div>
       )}
     </section>
