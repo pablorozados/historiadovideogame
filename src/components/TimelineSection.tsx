@@ -7,8 +7,22 @@ interface TimelineSectionProps {
   onEpisodeClick: (episode: Episode) => void;
 }
 
+interface YearGroup {
+  year: number;
+  events: Array<{
+    id: string;
+    date: string;
+    title: string;
+    description?: string;
+    image_url?: string;
+    episode: Episode;
+    isMainEpisode: boolean;
+  }>;
+}
+
 const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => {
-  const [hoveredEvent, setHoveredEvent] = useState<any>(null);
+  const [hoveredYear, setHoveredYear] = useState<YearGroup | null>(null);
+  const [selectedYear, setSelectedYear] = useState<YearGroup | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -37,8 +51,23 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
     return events;
   });
   
-  // Ordenar por data
-  const sortedEvents = allTimelineEvents.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  // Agrupar eventos por ano
+  const eventsByYear = allTimelineEvents.reduce((acc, event) => {
+    const year = event.year;
+    if (!acc[year]) {
+      acc[year] = [];
+    }
+    acc[year].push(event);
+    return acc;
+  }, {} as Record<number, typeof allTimelineEvents>);
+
+  // Converter para array ordenado de grupos por ano
+  const yearGroups: YearGroup[] = Object.entries(eventsByYear)
+    .map(([year, events]) => ({
+      year: parseInt(year),
+      events: events.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    }))
+    .sort((a, b) => a.year - b.year);
   
   const handleImageClick = (imageUrl: string, title: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -65,7 +94,7 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
     document.body.appendChild(modal);
   };
 
-  const handleMouseEnter = (event: any, e: React.MouseEvent) => {
+  const handleMouseEnter = (yearGroup: YearGroup, e: React.MouseEvent) => {
     if (hoverTimeoutRef.current) {
       clearTimeout(hoverTimeoutRef.current);
     }
@@ -75,12 +104,12 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
       x: rect.left + rect.width / 2,
       y: rect.top - 10
     });
-    setHoveredEvent(event);
+    setHoveredYear(yearGroup);
   };
 
   const handleMouseLeave = () => {
     hoverTimeoutRef.current = setTimeout(() => {
-      setHoveredEvent(null);
+      setHoveredYear(null);
     }, 100);
   };
 
@@ -91,7 +120,17 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
   };
 
   const handleTooltipMouseLeave = () => {
-    setHoveredEvent(null);
+    setHoveredYear(null);
+  };
+
+  const handleYearClick = (yearGroup: YearGroup) => {
+    if (yearGroup.events.length === 1) {
+      // Se tem apenas um evento, abrir diretamente
+      onEpisodeClick(yearGroup.events[0].episode);
+    } else {
+      // Se tem múltiplos eventos, mostrar seletor
+      setSelectedYear(selectedYear?.year === yearGroup.year ? null : yearGroup);
+    }
   };
 
   useEffect(() => {
@@ -113,102 +152,158 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
         <div className="timeline-line h-1 w-full mb-8 rounded-full"></div>
         
         <div className="relative">
-          {sortedEvents.map((event, index) => (
+          {yearGroups.map((yearGroup, index) => (
             <div
-              key={`${event.episode.id}-${event.id}`}
+              key={yearGroup.year}
               className="absolute transform -translate-x-1/2"
               style={{ 
-                left: `${8 + (index / Math.max(1, sortedEvents.length - 1)) * 84}%`,
+                left: `${8 + (index / Math.max(1, yearGroups.length - 1)) * 84}%`,
                 top: '-60px'
               }}
             >
               {/* Área de hover expandida */}
               <div 
                 className="cursor-pointer relative w-16 h-16 flex items-center justify-center"
-                onClick={() => onEpisodeClick(event.episode)}
-                onMouseEnter={(e) => handleMouseEnter(event, e)}
+                onClick={() => handleYearClick(yearGroup)}
+                onMouseEnter={(e) => handleMouseEnter(yearGroup, e)}
                 onMouseLeave={handleMouseLeave}
               >
                 {/* Timeline Point */}
-                <div className={`timeline-point w-6 h-6 rounded-full border-4 relative ${
-                  event.isMainEpisode 
+                <div className={`timeline-point w-8 h-8 rounded-full border-4 relative ${
+                  yearGroup.events.some(e => e.isMainEpisode)
                     ? 'bg-retro-yellow border-retro-blue' 
                     : 'bg-retro-blue border-retro-yellow'
                 }`}>
+                  {yearGroup.events.length > 1 && (
+                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-retro-yellow text-retro-black rounded-full flex items-center justify-center text-xs font-bold">
+                      {yearGroup.events.length}
+                    </div>
+                  )}
                 </div>
               </div>
               
               {/* Year Label */}
               <div className="absolute top-12 left-1/2 transform -translate-x-1/2 text-center pointer-events-none">
                 <div className={`font-retro text-lg font-bold ${
-                  event.isMainEpisode ? 'text-retro-yellow' : 'text-retro-blue'
+                  yearGroup.events.some(e => e.isMainEpisode) ? 'text-retro-yellow' : 'text-retro-blue'
                 }`}>
-                  {event.year}
+                  {yearGroup.year}
                 </div>
-                <div className="font-mono text-xs text-gray-400 max-w-20 truncate">
-                  {event.title.length > 15 ? `${event.title.slice(0, 15)}...` : event.title}
+                <div className="font-mono text-xs text-gray-400">
+                  {yearGroup.events.length} evento{yearGroup.events.length > 1 ? 's' : ''}
                 </div>
               </div>
             </div>
           ))}
         </div>
+
+        {/* Seletor de eventos para anos com múltiplos eventos */}
+        {selectedYear && (
+          <div className="mt-20 bg-retro-black border-2 border-retro-yellow rounded-lg p-6">
+            <h3 className="font-retro text-xl text-retro-yellow mb-4">
+              Eventos de {selectedYear.year}
+            </h3>
+            <div className="grid gap-3">
+              {selectedYear.events.map((event) => (
+                <div
+                  key={`${event.episode.id}-${event.id}`}
+                  className="flex items-center gap-4 p-3 bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-700 transition-colors"
+                  onClick={() => onEpisodeClick(event.episode)}
+                >
+                  <img
+                    src={event.image_url || event.episode.cover_image_url || 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&h=400&fit=crop&crop=center'}
+                    alt={event.title}
+                    className="w-12 h-12 object-cover rounded border border-retro-blue"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-mono text-sm text-retro-yellow truncate">
+                      {event.title}
+                    </h4>
+                    <p className="font-mono text-xs text-gray-400">
+                      {new Date(event.date).toLocaleDateString('pt-BR')} | {event.episode.title}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={() => setSelectedYear(null)}
+              className="mt-4 font-mono text-sm text-gray-400 hover:text-retro-yellow"
+            >
+              Fechar
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Mobile Timeline */}
-      <div className="lg:hidden space-y-6">
-        {sortedEvents.map((event) => (
-          <div
-            key={`${event.episode.id}-${event.id}`}
-            className="flex items-center gap-4 p-4 retro-card rounded-lg cursor-pointer hover:scale-105 transition-transform"
-            onClick={() => onEpisodeClick(event.episode)}
-          >
-            <div className="flex-shrink-0">
-              <div className={`timeline-point w-12 h-12 rounded-full border-4 flex items-center justify-center ${
-                event.isMainEpisode 
+      <div className="lg:hidden space-y-4">
+        {yearGroups.map((yearGroup) => (
+          <div key={yearGroup.year} className="space-y-2">
+            {/* Cabeçalho do ano */}
+            <div 
+              className="flex items-center gap-4 p-4 retro-card rounded-lg cursor-pointer"
+              onClick={() => handleYearClick(yearGroup)}
+            >
+              <div className={`timeline-point w-12 h-12 rounded-full border-4 flex items-center justify-center relative ${
+                yearGroup.events.some(e => e.isMainEpisode)
                   ? 'bg-retro-yellow border-retro-blue' 
                   : 'bg-retro-blue border-retro-yellow'
               }`}>
                 <span className={`font-retro text-sm font-bold ${
-                  event.isMainEpisode ? 'text-retro-black' : 'text-retro-yellow'
+                  yearGroup.events.some(e => e.isMainEpisode) ? 'text-retro-black' : 'text-retro-yellow'
                 }`}>
-                  {event.year.toString().slice(-2)}
+                  {yearGroup.year.toString().slice(-2)}
                 </span>
+                {yearGroup.events.length > 1 && (
+                  <div className="absolute -top-1 -right-1 w-5 h-5 bg-retro-yellow text-retro-black rounded-full flex items-center justify-center text-xs font-bold">
+                    {yearGroup.events.length}
+                  </div>
+                )}
+              </div>
+              
+              <div className="flex-1">
+                <h3 className="font-retro text-lg text-retro-yellow">
+                  {yearGroup.year}
+                </h3>
+                <p className="font-mono text-sm text-gray-400">
+                  {yearGroup.events.length} evento{yearGroup.events.length > 1 ? 's' : ''}
+                  {yearGroup.events.length > 1 ? ' - Toque para ver todos' : ''}
+                </p>
               </div>
             </div>
-            
-            <div className="flex-1 min-w-0">
-              <h3 className="font-retro text-lg text-retro-yellow truncate">
-                {event.title}
-              </h3>
-              {event.description && (
-                <p className="text-sm text-gray-300 line-clamp-2 mt-1">
-                  {event.description}
-                </p>
-              )}
-              <p className="font-mono text-sm text-gray-400">
-                {new Date(event.date).toLocaleDateString('pt-BR')} | Episódio: {event.episode.title}
-              </p>
-            </div>
 
-            <div className="flex-shrink-0">
-              <img
-                src={event.image_url || event.episode.cover_image_url || 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&h=400&fit=crop&crop=center'}
-                alt={event.title}
-                className="w-16 h-16 object-cover rounded border-2 border-retro-blue cursor-pointer"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  const imageUrl = event.image_url || event.episode.cover_image_url;
-                  if (imageUrl) {
-                    handleImageClick(imageUrl, event.title, e);
-                  }
-                }}
-              />
-            </div>
+            {/* Lista de eventos (expandida no mobile se selecionado) */}
+            {selectedYear?.year === yearGroup.year && yearGroup.events.length > 1 && (
+              <div className="ml-8 space-y-2">
+                {yearGroup.events.map((event) => (
+                  <div
+                    key={`${event.episode.id}-${event.id}`}
+                    className="flex items-center gap-3 p-3 bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-700 transition-colors"
+                    onClick={() => onEpisodeClick(event.episode)}
+                  >
+                    <img
+                      src={event.image_url || event.episode.cover_image_url || 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&h=400&fit=crop&crop=center'}
+                      alt={event.title}
+                      className="w-10 h-10 object-cover rounded border border-retro-blue"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-mono text-sm text-retro-yellow truncate">
+                        {event.title}
+                      </h4>
+                      <p className="font-mono text-xs text-gray-400">
+                        {new Date(event.date).toLocaleDateString('pt-BR')}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         ))}
       </div>
 
-      {sortedEvents.length === 0 && (
+      {yearGroups.length === 0 && (
         <div className="text-center py-16">
           <div className="text-6xl mb-4">🎮</div>
           <p className="font-mono text-gray-400">
@@ -221,7 +316,7 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
       )}
 
       {/* Tooltip renderizado como portal no documento */}
-      {hoveredEvent && (
+      {hoveredYear && (
         <div 
           className="fixed pointer-events-none z-[50]"
           style={{
@@ -231,35 +326,49 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
           }}
         >
           <div 
-            className="bg-black border-2 border-retro-yellow rounded-lg p-4 whitespace-normal w-72 shadow-2xl pointer-events-auto"
+            className="bg-black border-2 border-retro-yellow rounded-lg p-4 whitespace-normal w-80 shadow-2xl pointer-events-auto max-h-96 overflow-y-auto"
             onMouseEnter={handleTooltipMouseEnter}
             onMouseLeave={handleTooltipMouseLeave}
           >
-            <div className="font-retro text-sm text-retro-yellow mb-2">
-              {new Date(hoveredEvent.date).toLocaleDateString('pt-BR')}
+            <div className="font-retro text-lg text-retro-yellow mb-3">
+              {hoveredYear.year} ({hoveredYear.events.length} evento{hoveredYear.events.length > 1 ? 's' : ''})
             </div>
-            <div className="font-mono text-sm text-white mb-2 break-words">
-              {hoveredEvent.title}
+            
+            <div className="space-y-3">
+              {hoveredYear.events.map((event) => (
+                <div key={`${event.episode.id}-${event.id}`} className="border-b border-gray-700 pb-2 last:border-b-0">
+                  <div className="font-mono text-xs text-retro-blue mb-1">
+                    {new Date(event.date).toLocaleDateString('pt-BR')}
+                  </div>
+                  <div className="font-mono text-sm text-white mb-1 break-words">
+                    {event.title}
+                  </div>
+                  {event.description && (
+                    <div className="font-mono text-xs text-gray-300 mb-1 break-words line-clamp-2">
+                      {event.description}
+                    </div>
+                  )}
+                  <div className="font-mono text-xs text-gray-400 break-words">
+                    - {event.episode.title}
+                  </div>
+                  {event.image_url && (
+                    <div className="mt-2">
+                      <img 
+                        src={event.image_url} 
+                        alt={event.title}
+                        className="w-16 h-16 object-cover rounded border border-retro-blue cursor-pointer hover:scale-105 transition-transform"
+                        onClick={(e) => handleImageClick(event.image_url!, event.title, e)}
+                        title="Clique para ampliar"
+                      />
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
-            {hoveredEvent.description && (
-              <div className="font-mono text-xs text-gray-300 mb-2 break-words">
-                {hoveredEvent.description}
-              </div>
-            )}
-            <div className="font-mono text-xs text-gray-400 mb-3 break-words">
-              - Escute em {hoveredEvent.episode.title}
+            
+            <div className="mt-3 pt-2 border-t border-gray-700 font-mono text-xs text-gray-400">
+              {hoveredYear.events.length === 1 ? 'Clique para ver episódio' : 'Clique para ver todos os eventos'}
             </div>
-            {hoveredEvent.image_url && (
-              <div className="relative">
-                <img 
-                  src={hoveredEvent.image_url} 
-                  alt={hoveredEvent.title}
-                  className="w-24 h-24 object-cover rounded border border-retro-blue cursor-pointer hover:scale-105 transition-transform"
-                  onClick={(e) => handleImageClick(hoveredEvent.image_url!, hoveredEvent.title, e)}
-                  title="Clique para ampliar"
-                />
-              </div>
-            )}
           </div>
         </div>
       )}
