@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -9,6 +8,7 @@ export interface TimelineEvent {
   title: string;
   description?: string;
   image_url?: string;
+  date_is_approximate?: boolean;
 }
 
 export interface Episode {

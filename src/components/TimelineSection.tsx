@@ -50,7 +50,7 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
         episode,
         year: new Date(event.date).getFullYear(),
         isMainEpisode: false,
-        date_is_approximate: false
+        date_is_approximate: event.date_is_approximate || false
       })) || [])
     ];
     return events;

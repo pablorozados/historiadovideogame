@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 interface YearGroup {
@@ -108,8 +107,13 @@ const TimelineTooltip = ({
               <div className="space-y-2">
                 {historicalEvents.map((event) => (
                   <div key={`${event.episode.id}-${event.id}`} className="border-b border-gray-600/30 pb-2 last:border-b-0">
-                    <div className="font-mono text-xs text-retro-blue mb-1">
+                    <div className={`font-mono text-xs mb-1 ${
+                      event.date_is_approximate ? 'text-red-400' : 'text-retro-blue'
+                    }`}>
                       {new Date(event.date).toLocaleDateString('pt-BR')}
+                      {event.date_is_approximate && (
+                        <span className="ml-1 text-red-400">[data imprecisa]</span>
+                      )}
                     </div>
                     <div className="font-mono text-sm text-gray-300 mb-1 break-words">
                       {event.title}

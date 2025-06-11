@@ -14,6 +14,7 @@ interface YearGroup {
     image_url?: string;
     episode: Episode;
     isMainEpisode: boolean;
+    date_is_approximate?: boolean;
   }>;
 }
 
