@@ -22,7 +22,7 @@ export interface Episode {
   timeline_events: TimelineEvent[];
   created_at: string;
   updated_at: string;
-  date_is_approximate?: boolean; // Nova propriedade
+  date_is_approximate: boolean;
 }
 
 export const useEpisodes = () => {
@@ -65,7 +65,7 @@ export const useEpisodes = () => {
         return {
           ...episode,
           timeline_events: timelineEvents,
-          date_is_approximate: episode.date_is_approximate || false
+          date_is_approximate: Boolean(episode.date_is_approximate)
         };
       });
       
