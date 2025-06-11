@@ -58,9 +58,7 @@ const TimelinePoint = ({
         {/* Timeline Point */}
         <div className={`timeline-point w-8 h-8 rounded-full border-4 relative ${
           yearGroup.events.some(e => e.isMainEpisode)
-            ? hasApproximateDate 
-              ? 'bg-red-500 border-red-300' 
-              : 'bg-retro-yellow border-retro-blue'
+            ? 'bg-retro-yellow border-retro-blue'
             : 'bg-retro-blue border-retro-yellow'
         }`}>
           {yearGroup.events.length > 1 && (
@@ -75,9 +73,7 @@ const TimelinePoint = ({
       <div className="absolute top-12 left-1/2 transform -translate-x-1/2 text-center pointer-events-none">
         <div className={`font-retro text-lg font-bold ${
           yearGroup.events.some(e => e.isMainEpisode) 
-            ? hasApproximateDate 
-              ? 'text-red-400' 
-              : 'text-retro-yellow'
+            ? 'text-retro-yellow'
             : 'text-retro-blue'
         }`}>
           {yearGroup.year}
