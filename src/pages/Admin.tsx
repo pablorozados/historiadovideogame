@@ -1,10 +1,10 @@
-
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Plus, LogOut, Trash2, Edit } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
@@ -22,6 +22,7 @@ const Admin = () => {
     description: '',
     listen_url: '',
     historical_date: '',
+    date_is_approximate: false,
   });
   const [timelineEvents, setTimelineEvents] = useState<TimelineEvent[]>([]);
   const [coverFile, setCoverFile] = useState<File | null>(null);
@@ -49,6 +50,7 @@ const Admin = () => {
       description: '',
       listen_url: '',
       historical_date: '',
+      date_is_approximate: false,
     });
     setTimelineEvents([]);
     setCoverFile(null);
@@ -66,6 +68,7 @@ const Admin = () => {
       description: episode.description || '',
       listen_url: episode.listen_url || '',
       historical_date: episode.historical_date,
+      date_is_approximate: episode.date_is_approximate || false,
     });
     setTimelineEvents(episode.timeline_events || []);
   };
@@ -107,6 +110,7 @@ const Admin = () => {
         historical_date: formData.historical_date,
         year: year,
         timeline_events: timelineEvents,
+        date_is_approximate: formData.date_is_approximate,
       };
 
       let error;
@@ -201,6 +205,19 @@ const Admin = () => {
                       className="bg-black border-retro-blue text-white"
                       required
                     />
+                    <div className="flex items-center space-x-2 mt-2">
+                      <Checkbox
+                        id="date_is_approximate"
+                        checked={formData.date_is_approximate}
+                        onCheckedChange={(checked) => 
+                          setFormData(prev => ({ ...prev, date_is_approximate: !!checked }))
+                        }
+                        className="border-retro-yellow data-[state=checked]:bg-retro-yellow data-[state=checked]:text-retro-black"
+                      />
+                      <Label htmlFor="date_is_approximate" className="font-mono text-xs text-gray-400">
+                        Data imprecisa (quando não souber o dia exato)
+                      </Label>
+                    </div>
                     <p className="text-xs text-gray-500 mt-1">
                       Esta data será usada para posicionar o episódio principal na timeline
                     </p>
@@ -325,6 +342,9 @@ const Admin = () => {
                           </h3>
                           <p className="text-xs text-gray-400">
                             Data: {new Date(episode.historical_date).toLocaleDateString('pt-BR')} | Ano: {episode.year}
+                            {episode.date_is_approximate && (
+                              <span className="text-red-400 ml-1">[data imprecisa]</span>
+                            )}
                           </p>
                           <p className="text-xs text-gray-300 line-clamp-2 mt-1">
                             {episode.description}

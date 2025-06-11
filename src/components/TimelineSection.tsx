@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Episode } from '@/hooks/useEpisodes';
 import DesktopTimeline from './timeline/DesktopTimeline';
@@ -20,6 +19,7 @@ interface YearGroup {
     image_url?: string;
     episode: Episode;
     isMainEpisode: boolean;
+    date_is_approximate?: boolean;
   }>;
 }
 
@@ -41,14 +41,16 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
         image_url: episode.cover_image_url,
         episode,
         year: episode.year,
-        isMainEpisode: true
+        isMainEpisode: true,
+        date_is_approximate: episode.date_is_approximate
       },
       // Adicionar eventos específicos da timeline
       ...(episode.timeline_events?.map(event => ({
         ...event,
         episode,
         year: new Date(event.date).getFullYear(),
-        isMainEpisode: false
+        isMainEpisode: false,
+        date_is_approximate: false
       })) || [])
     ];
     return events;

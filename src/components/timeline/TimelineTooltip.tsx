@@ -11,6 +11,7 @@ interface YearGroup {
     image_url?: string;
     episode: any;
     isMainEpisode: boolean;
+    date_is_approximate?: boolean;
   }>;
 }
 
@@ -65,8 +66,13 @@ const TimelineTooltip = ({
               <div className="space-y-3">
                 {episodes.map((event) => (
                   <div key={`${event.episode.id}-${event.id}`} className="border-b border-retro-yellow/30 pb-2 last:border-b-0">
-                    <div className="font-mono text-xs text-retro-blue mb-1">
+                    <div className={`font-mono text-xs mb-1 ${
+                      event.episode?.date_is_approximate ? 'text-red-400' : 'text-retro-blue'
+                    }`}>
                       {new Date(event.date).toLocaleDateString('pt-BR')}
+                      {event.episode?.date_is_approximate && (
+                        <span className="ml-1 text-red-400">[data imprecisa]</span>
+                      )}
                     </div>
                     <div className="font-mono text-sm text-retro-yellow font-bold mb-1 break-words">
                       {event.title}
@@ -135,7 +141,7 @@ const TimelineTooltip = ({
         </div>
         
         <div className="mt-3 pt-2 border-t border-gray-700 font-mono text-xs text-gray-400">
-          {yearGroup.events.length === 1 ? 'Clique para ver episódio' : 'Clique para ver todos os eventos'}
+          {yearGroup.events.length === 1 ? 'Clique no ponto para ver episódio' : 'Clique no ponto para ver todos os eventos'}
         </div>
       </div>
     </div>
