@@ -2,7 +2,6 @@
 import React from 'react';
 import { Episode } from '@/hooks/useEpisodes';
 import TimelinePoint from './TimelinePoint';
-import TimelineEventSelector from './TimelineEventSelector';
 
 interface YearGroup {
   year: number;
@@ -20,22 +19,18 @@ interface YearGroup {
 
 interface DesktopTimelineProps {
   yearGroups: YearGroup[];
-  selectedYear: YearGroup | null;
   onEpisodeClick: (episode: Episode) => void;
   onYearClick: (yearGroup: YearGroup) => void;
   onMouseEnter: (yearGroup: YearGroup, e: React.MouseEvent) => void;
   onMouseLeave: () => void;
-  onCloseSelector: () => void;
 }
 
 const DesktopTimeline = ({
   yearGroups,
-  selectedYear,
   onEpisodeClick,
   onYearClick,
   onMouseEnter,
-  onMouseLeave,
-  onCloseSelector
+  onMouseLeave
 }: DesktopTimelineProps) => {
   return (
     <div className="hidden lg:block relative px-12 mx-4">
@@ -54,7 +49,6 @@ const DesktopTimeline = ({
           />
         ))}
       </div>
-
     </div>
   );
 };

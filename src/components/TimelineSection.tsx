@@ -7,6 +7,7 @@ import TimelineTooltip from './timeline/TimelineTooltip';
 interface TimelineSectionProps {
   episodes: Episode[];
   onEpisodeClick: (episode: Episode) => void;
+  onYearClick: (yearGroup: YearGroup) => void;
 }
 
 interface YearGroup {
@@ -23,16 +24,14 @@ interface YearGroup {
   }>;
 }
 
-const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => {
+const TimelineSection = ({ episodes, onEpisodeClick, onYearClick }: TimelineSectionProps) => {
   const [hoveredYear, setHoveredYear] = useState<YearGroup | null>(null);
-  const [selectedYear, setSelectedYear] = useState<YearGroup | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Expandir todos os eventos da timeline de todos os episódios + o próprio episódio
+  // ... keep existing code (allTimelineEvents, eventsByYear, yearGroups logic)
   const allTimelineEvents = episodes.flatMap(episode => {
     const events = [
-      // Adicionar o próprio episódio como evento principal
       {
         id: `episode-${episode.id}`,
         date: episode.historical_date,
@@ -44,7 +43,6 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
         isMainEpisode: true,
         date_is_approximate: episode.date_is_approximate
       },
-      // Adicionar eventos específicos da timeline
       ...(episode.timeline_events?.map(event => ({
         ...event,
         episode,
@@ -56,7 +54,6 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
     return events;
   });
   
-  // Agrupar eventos por ano
   const eventsByYear = allTimelineEvents.reduce((acc, event) => {
     const year = event.year;
     if (!acc[year]) {
@@ -66,16 +63,12 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
     return acc;
   }, {} as Record<number, typeof allTimelineEvents>);
 
-  // Converter para array ordenado de grupos por ano
   const yearGroups: YearGroup[] = Object.entries(eventsByYear)
     .map(([year, events]) => ({
       year: parseInt(year),
-      // Ordenar: episódios principais primeiro, depois eventos históricos, ambos por data
       events: events.sort((a, b) => {
-        // Primeiro por tipo (episódios principais primeiro)
         if (a.isMainEpisode && !b.isMainEpisode) return -1;
         if (!a.isMainEpisode && b.isMainEpisode) return 1;
-        // Depois por data
         return new Date(a.date).getTime() - new Date(b.date).getTime();
       })
     }))
@@ -85,7 +78,6 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
     e.stopPropagation();
     e.preventDefault();
     
-    // Criar modal para ampliar imagem
     const modal = document.createElement('div');
     modal.className = 'fixed inset-0 bg-black/95 z-[10000] flex items-center justify-center p-4 cursor-pointer';
     modal.onclick = () => modal.remove();
@@ -135,16 +127,6 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
     setHoveredYear(null);
   };
 
-  const handleYearClick = (yearGroup: YearGroup) => {
-    // Sempre abrir o modal do primeiro episódio do ano
-    const mainEpisode = yearGroup.events.find(e => e.isMainEpisode) || yearGroup.events[0];
-    onEpisodeClick(mainEpisode.episode);
-  };
-
-  const handleCloseSelector = () => {
-    setSelectedYear(null);
-  };
-
   useEffect(() => {
     return () => {
       if (hoverTimeoutRef.current) {
@@ -162,20 +144,17 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
       {/* Desktop Timeline */}
       <DesktopTimeline
         yearGroups={yearGroups}
-        selectedYear={selectedYear}
         onEpisodeClick={onEpisodeClick}
-        onYearClick={handleYearClick}
+        onYearClick={onYearClick}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
-        onCloseSelector={handleCloseSelector}
       />
 
       {/* Mobile Timeline */}
       <MobileTimeline
         yearGroups={yearGroups}
-        selectedYear={selectedYear}
         onEpisodeClick={onEpisodeClick}
-        onYearClick={handleYearClick}
+        onYearClick={onYearClick}
       />
 
       {yearGroups.length === 0 && (

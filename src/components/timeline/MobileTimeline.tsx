@@ -17,23 +17,15 @@ interface YearGroup {
 
 interface MobileTimelineProps {
   yearGroups: YearGroup[];
-  selectedYear: YearGroup | null;
   onEpisodeClick: (episode: Episode) => void;
   onYearClick: (yearGroup: YearGroup) => void;
 }
 
-const MobileTimeline = ({ yearGroups, selectedYear, onEpisodeClick, onYearClick }: MobileTimelineProps) => {
-  const separateEventsByType = (events: YearGroup['events']) => {
-    const episodes = events.filter(e => e.isMainEpisode);
-    const historicalEvents = events.filter(e => !e.isMainEpisode);
-    return { episodes, historicalEvents };
-  };
-
+const MobileTimeline = ({ yearGroups, onEpisodeClick, onYearClick }: MobileTimelineProps) => {
   return (
     <div className="lg:hidden space-y-4">
       {yearGroups.map((yearGroup) => (
         <div key={yearGroup.year} className="space-y-2">
-          {/* Cabeçalho do ano */}
           <div 
             className="flex items-center gap-4 p-4 retro-card rounded-lg cursor-pointer"
             onClick={() => onYearClick(yearGroup)}
@@ -65,7 +57,6 @@ const MobileTimeline = ({ yearGroups, selectedYear, onEpisodeClick, onYearClick 
               </p>
             </div>
           </div>
-
         </div>
       ))}
     </div>
