@@ -32,9 +32,6 @@ const TimelinePoint = ({
   onMouseEnter, 
   onMouseLeave 
 }: TimelinePointProps) => {
-  const hasApproximateDate = yearGroup.events.some(e => 
-    e.isMainEpisode ? e.episode?.date_is_approximate : e.date_is_approximate
-  );
   
   // Calcular posição com mais espaço quando há muitos pontos
   const spacing = totalGroups > 15 ? 92 : totalGroups > 10 ? 88 : 84;
@@ -77,18 +74,10 @@ const TimelinePoint = ({
             : 'text-retro-blue'
         }`}>
           {yearGroup.year}
-          {hasApproximateDate && (
-            <span className="text-xs ml-1 text-red-400">*</span>
-          )}
         </div>
         <div className="font-mono text-xs text-gray-400">
           {yearGroup.events.length} evento{yearGroup.events.length > 1 ? 's' : ''}
         </div>
-        {hasApproximateDate && (
-          <div className="font-mono text-xs text-red-400">
-            data imprecisa
-          </div>
-        )}
       </div>
     </div>
   );

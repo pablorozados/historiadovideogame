@@ -62,11 +62,11 @@ const TimelineEventSelector = ({ selectedYear, onEpisodeClick, onClose }: Timeli
                     <p className="font-mono text-sm text-gray-300">
                       {new Date(event.date).toLocaleDateString('pt-BR')}
                     </p>
-                    {event.description && (
-                      <p className="font-mono text-xs text-gray-400 mt-1 line-clamp-1">
-                        {event.description}
-                      </p>
-                    )}
+                     {event.description && (
+                       <p className="font-mono text-xs text-gray-400 mt-1">
+                         {event.description}
+                       </p>
+                     )}
                   </div>
                 </div>
               ))}
