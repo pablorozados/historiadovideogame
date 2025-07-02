@@ -55,14 +55,6 @@ const DesktopTimeline = ({
         ))}
       </div>
 
-      {/* Seletor de eventos para anos com múltiplos eventos */}
-      {selectedYear && (
-        <TimelineEventSelector
-          selectedYear={selectedYear}
-          onEpisodeClick={onEpisodeClick}
-          onClose={onCloseSelector}
-        />
-      )}
     </div>
   );
 };

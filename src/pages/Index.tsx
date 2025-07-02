@@ -76,7 +76,7 @@ const Index = () => {
 
       {/* Episode Detail Modal */}
       <Dialog open={!!selectedEpisode} onOpenChange={closeDialog}>
-        <DialogContent className="retro-card border-retro-yellow max-w-2xl z-[100]">
+        <DialogContent className="retro-card border-retro-yellow max-w-2xl">
           {selectedEpisode && (
             <>
               <DialogHeader>

@@ -136,13 +136,9 @@ const TimelineSection = ({ episodes, onEpisodeClick }: TimelineSectionProps) => 
   };
 
   const handleYearClick = (yearGroup: YearGroup) => {
-    if (yearGroup.events.length === 1) {
-      // Se tem apenas um evento, abrir diretamente
-      onEpisodeClick(yearGroup.events[0].episode);
-    } else {
-      // Se tem múltiplos eventos, mostrar seletor
-      setSelectedYear(selectedYear?.year === yearGroup.year ? null : yearGroup);
-    }
+    // Sempre abrir o modal do primeiro episódio do ano
+    const mainEpisode = yearGroup.events.find(e => e.isMainEpisode) || yearGroup.events[0];
+    onEpisodeClick(mainEpisode.episode);
   };
 
   const handleCloseSelector = () => {
