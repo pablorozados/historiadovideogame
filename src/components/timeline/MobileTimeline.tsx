@@ -52,8 +52,7 @@ const MobileTimeline = ({ yearGroups, onEpisodeClick, onYearClick }: MobileTimel
                 {yearGroup.year}
               </h3>
               <p className="font-mono text-sm text-gray-400">
-                {yearGroup.events.length} evento{yearGroup.events.length > 1 ? 's' : ''}
-                {yearGroup.events.length > 1 ? ' - Toque para ver todos' : ''}
+                {yearGroup.events.length} evento{yearGroup.events.length > 1 ? 's' : ''} - Toque para ver{yearGroup.events.length > 1 ? ' todos' : ''}
               </p>
             </div>
           </div>

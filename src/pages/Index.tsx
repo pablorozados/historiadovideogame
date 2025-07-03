@@ -66,9 +66,8 @@ const Index = () => {
             />
           </div>
           <p className="font-mono text-lg md:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-            Uma jornada épica através da história dos videogames, episódio por episódio, 
-            ano por ano. Explore nossa timeline interativa e descubra como os games 
-            moldaram nossa cultura.
+            Uma jornada épica através da história dos videogames. Sem deixar nenhum pixel para trás. 
+            Explore nossa timeline interativa e descubra como os games moldaram nossa cultura.
           </p>
         </section>
 
