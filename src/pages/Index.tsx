@@ -90,6 +90,25 @@ const Index = () => {
           </div>
         </section>
 
+        {/* Spotify Player Section */}
+        <section className="mb-16">
+          <h2 className="font-retro text-3xl md:text-4xl text-center mb-8 text-retro-yellow">
+            ÚLTIMO EPISÓDIO
+          </h2>
+          <div className="flex justify-center">
+            <iframe 
+              style={{borderRadius: "12px"}} 
+              src="https://open.spotify.com/embed/show/4ZZZrzy8RjHXfhKvGV9TGv?utm_source=generator&theme=0" 
+              width="40%" 
+              height="352" 
+              frameBorder="0" 
+              allowFullScreen 
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+              loading="lazy"
+            />
+          </div>
+        </section>
+
         {/* Timeline Section */}
         {loading ? (
           <div className="text-center py-16">

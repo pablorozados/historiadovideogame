@@ -128,12 +128,20 @@ const TimelineSection = ({ episodes, onEpisodeClick, onYearClick }: TimelineSect
   };
 
   useEffect(() => {
+    const handleOpenEpisode = (event: CustomEvent) => {
+      onEpisodeClick(event.detail);
+      setHoveredYear(null);
+    };
+
+    window.addEventListener('openEpisode' as any, handleOpenEpisode);
+    
     return () => {
+      window.removeEventListener('openEpisode' as any, handleOpenEpisode);
       if (hoverTimeoutRef.current) {
         clearTimeout(hoverTimeoutRef.current);
       }
     };
-  }, []);
+  }, [onEpisodeClick]);
   
   return (
     <section id="timeline" className="mb-16">

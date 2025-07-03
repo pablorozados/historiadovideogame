@@ -77,10 +77,21 @@ const TimelineTooltip = ({
                       {event.title}
                     </div>
                     {event.description && (
-                      <div className="font-mono text-xs text-gray-300 mb-1 break-words line-clamp-2">
+                      <div className="font-mono text-xs text-gray-300 mb-1 break-words">
                         {event.description}
                       </div>
                     )}
+                    <div 
+                      className="font-mono text-xs text-retro-blue cursor-pointer hover:text-retro-yellow transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        // Trigger episode modal
+                        const episodeEvent = new CustomEvent('openEpisode', { detail: event.episode });
+                        window.dispatchEvent(episodeEvent);
+                      }}
+                    >
+                      ▶ Escutar episódio
+                    </div>
                     {event.image_url && (
                       <div className="mt-2">
                         <img 
@@ -119,12 +130,23 @@ const TimelineTooltip = ({
                       {event.title}
                     </div>
                     {event.description && (
-                      <div className="font-mono text-xs text-gray-400 mb-1 break-words line-clamp-2">
+                      <div className="font-mono text-xs text-gray-400 mb-1 break-words">
                         {event.description}
                       </div>
                     )}
-                    <div className="font-mono text-xs text-gray-500 break-words">
+                    <div className="font-mono text-xs text-gray-500 break-words mb-1">
                       - {event.episode.title}
+                    </div>
+                    <div 
+                      className="font-mono text-xs text-retro-blue cursor-pointer hover:text-retro-yellow transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        // Trigger episode modal
+                        const episodeEvent = new CustomEvent('openEpisode', { detail: event.episode });
+                        window.dispatchEvent(episodeEvent);
+                      }}
+                    >
+                      ▶ Escutar episódio
                     </div>
                     {event.image_url && (
                       <div className="mt-2">
