@@ -1,5 +1,11 @@
 import React, { useEffect, useRef } from 'react';
 import Header from '@/components/Header';
+import spotifyIcon from '@/assets/icons/spotify.png';
+import applePodcastsIcon from '@/assets/icons/apple-podcasts.png';
+import amazonMusicIcon from '@/assets/icons/amazon-music.png';
+import pocketCastsIcon from '@/assets/icons/pocket-casts.png';
+import overcastIcon from '@/assets/icons/overcast.png';
+import deezerIcon from '@/assets/icons/deezer.png';
 
 const About = () => {
   const cardsRef = useRef<HTMLDivElement[]>([]);
@@ -69,12 +75,12 @@ const About = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {[
-              { name: 'Spotify', url: 'https://open.spotify.com/show/5h8Vp3X89gUBXEi7VCI6xs', icon: 'S', color: 'from-green-500 to-green-600' },
-              { name: 'Pocket Casts', url: 'https://pca.st/73o2nx84', icon: 'PC', color: 'from-red-500 to-red-600' },
-              { name: 'Amazon Music', url: 'https://music.amazon.com.br/podcasts/281bd375-3bc4-4b65-a930-85b687128666/a-dita-história-do-videogame', icon: 'A', color: 'from-orange-500 to-orange-600' },
-              { name: 'Apple Podcast', url: 'https://podcasts.apple.com/br/podcast/a-dita-hist%C3%B3ria-do-videogame/id1513923155', icon: '🍎', color: 'from-gray-800 to-gray-900' },
-              { name: 'Overcast', url: 'https://overcast.fm/itunes1513923155/a-dita-hist-ria-do-videogame', icon: 'OC', color: 'from-orange-600 to-orange-700' },
-              { name: 'Deezer', url: 'https://dzr.page.link/T63CpEyHqzob2K437', icon: 'D', color: 'from-pink-500 to-pink-600' }
+              { name: 'Spotify', url: 'https://open.spotify.com/show/5h8Vp3X89gUBXEi7VCI6xs', icon: spotifyIcon },
+              { name: 'Pocket Casts', url: 'https://pca.st/73o2nx84', icon: pocketCastsIcon },
+              { name: 'Amazon Music', url: 'https://music.amazon.com.br/podcasts/281bd375-3bc4-4b65-a930-85b687128666/a-dita-história-do-videogame', icon: amazonMusicIcon },
+              { name: 'Apple Podcast', url: 'https://podcasts.apple.com/br/podcast/a-dita-hist%C3%B3ria-do-videogame/id1513923155', icon: applePodcastsIcon },
+              { name: 'Overcast', url: 'https://overcast.fm/itunes1513923155/a-dita-hist-ria-do-videogame', icon: overcastIcon },
+              { name: 'Deezer', url: 'https://dzr.page.link/T63CpEyHqzob2K437', icon: deezerIcon }
             ].map((platform, index) => (
               <a 
                 key={index}
@@ -83,8 +89,8 @@ const About = () => {
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl text-gray-700 font-semibold transition-all duration-300 hover:-translate-y-1 hover:shadow-lg border-2 border-transparent hover:border-blue-500 no-underline"
               >
-                <div className={`w-10 h-10 bg-gradient-to-r ${platform.color} rounded-lg flex items-center justify-center text-white font-bold text-sm`}>
-                  {platform.icon}
+                <div className="w-10 h-10 flex items-center justify-center">
+                  <img src={platform.icon} alt={`${platform.name} icon`} className="w-8 h-8 object-contain" />
                 </div>
                 <span>{platform.name}</span>
               </a>
