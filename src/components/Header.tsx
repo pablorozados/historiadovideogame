@@ -30,7 +30,7 @@ const Header = ({ onAdminClick }: HeaderProps) => {
             🎧 Escute o último episódio
           </a>
           <a 
-            href="#timeline" 
+            href="/#timeline" 
             className="font-mono text-gray-300 hover:text-retro-yellow transition-colors"
           >
             Timeline

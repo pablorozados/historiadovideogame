@@ -6,6 +6,7 @@ import amazonMusicIcon from '@/assets/icons/amazon-music.png';
 import pocketCastsIcon from '@/assets/icons/pocket-casts.png';
 import overcastIcon from '@/assets/icons/overcast.png';
 import deezerIcon from '@/assets/icons/deezer.png';
+import pabloAvatar from '@/assets/pablo-avatar.png';
 
 const About = () => {
   const cardsRef = useRef<HTMLDivElement[]>([]);
@@ -45,13 +46,13 @@ const About = () => {
       
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="hero-section bg-white/95 backdrop-blur-sm rounded-3xl p-12 mb-8 shadow-2xl text-center relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-400 via-teal-400 via-blue-400 to-yellow-400 animate-pulse"></div>
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-400 via-yellow-400 via-green-400 via-blue-400 via-indigo-400 via-purple-400 to-red-400 bg-[length:200%_100%] animate-rainbow-flow"></div>
           
           <h1 className="text-5xl font-extrabold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent mb-4 uppercase tracking-tight">
             A Dita História do Videogame
           </h1>
           <p className="text-xl text-gray-600 font-light mb-8 italic">
-            Desvendando a teia complexa da história dos games
+            podcast
           </p>
           
           <div className="flex justify-center gap-8 opacity-60">
@@ -173,9 +174,23 @@ const About = () => {
 
         <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-8 rounded-2xl text-center relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-full bg-gradient-radial from-white/10 to-transparent animate-pulse"></div>
-          <p className="text-xl font-semibold relative z-10">
-            📻 Descubra como <strong>reviravoltas incríveis</strong> criaram a <strong>DITA HISTÓRIA DO VIDEOGAME</strong>
-          </p>
+          <div className="relative z-10">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <img src={pabloAvatar} alt="Pablo Prime" className="w-12 h-12 rounded-full border-2 border-white/50" />
+              <div>
+                <p className="text-lg font-semibold">Contato:</p>
+                <a href="mailto:aditahistoriadovideogame@gmail.com" className="text-yellow-300 hover:text-yellow-100 transition-colors">
+                  aditahistoriadovideogame@gmail.com
+                </a>
+              </div>
+            </div>
+            <div className="flex items-center justify-center gap-3">
+              <img src={pabloAvatar} alt="Pablo Prime" className="w-8 h-8 rounded-full border-2 border-white/50" />
+              <a href="https://linktr.ee/pablorozados" target="_blank" rel="noopener noreferrer" className="text-yellow-300 hover:text-yellow-100 transition-colors font-semibold">
+                📱 Minhas Redes Sociais
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </div>
