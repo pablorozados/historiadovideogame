@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import Header from '@/components/Header';
+// Updated icons from user - force reload
 import spotifyIcon from '@/assets/icons/spotify.png';
 import applePodcastsIcon from '@/assets/icons/apple-podcasts.png';
 import amazonMusicIcon from '@/assets/icons/amazon-music.png';
