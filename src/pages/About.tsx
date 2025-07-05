@@ -1,13 +1,13 @@
 import React, { useEffect, useRef } from 'react';
 import Header from '@/components/Header';
-// Updated icons from user - force reload
-import spotifyIcon from '@/assets/icons/spotify.png';
-import applePodcastsIcon from '@/assets/icons/apple-podcasts.png';
-import amazonMusicIcon from '@/assets/icons/amazon-music.png';
-import pocketCastsIcon from '@/assets/icons/pocket-casts.png';
-import overcastIcon from '@/assets/icons/overcast.png';
-import deezerIcon from '@/assets/icons/deezer.png';
-import pabloAvatar from '@/assets/pablo-avatar.png';
+// Using user's actual images - force reload with new names
+import spotifyIcon from '@/assets/icons/spotify-new.png';
+import applePodcastsIcon from '@/assets/icons/apple-podcasts-new.png';
+import amazonMusicIcon from '@/assets/icons/amazon-music-new.png';
+import pocketCastsIcon from '@/assets/icons/pocket-casts-new.png';
+import overcastIcon from '@/assets/icons/overcast-new.png';
+import deezerIcon from '@/assets/icons/deezer-new.png';
+import pabloAvatar from '@/assets/pablo-avatar-new.png';
 
 const About = () => {
   const cardsRef = useRef<HTMLDivElement[]>([]);
