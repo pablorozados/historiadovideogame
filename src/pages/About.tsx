@@ -60,7 +60,7 @@ const About = () => {
             {['🎮', '🕹️', '👾', '🎯'].map((icon, index) => (
               <div 
                 key={index}
-                className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center text-3xl animate-bounce shadow-lg border border-white/30"
+                className="w-12 h-12 bg-gray-800 rounded-xl flex items-center justify-center text-3xl animate-bounce shadow-lg border-2 border-gray-600"
                 style={{ animationDelay: `${index * 0.5}s` }}
               >
                 {icon}
