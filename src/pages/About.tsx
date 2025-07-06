@@ -47,7 +47,7 @@ const About = () => {
       
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="hero-section bg-white/95 backdrop-blur-sm rounded-3xl p-12 mb-8 shadow-2xl text-center relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-500 via-orange-500 via-yellow-500 via-green-500 via-blue-500 via-indigo-500 via-purple-500 via-pink-500 to-red-500 bg-[length:400%_100%] animate-rainbow-flow"></div>
+          <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-red-500 via-orange-500 via-yellow-400 via-green-500 via-cyan-500 via-blue-500 via-indigo-600 via-purple-500 via-pink-500 to-red-500 animate-pulse"></div>
           
           <h1 className="text-5xl font-extrabold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent mb-4 uppercase tracking-tight">
             A Dita História do Videogame
@@ -57,13 +57,18 @@ const About = () => {
           </p>
           
           <div className="flex justify-center gap-8">
-            {['🎮', '🕹️', '👾', '🎯'].map((icon, index) => (
+            {[
+              { icon: '🎮', bg: 'bg-red-500' },
+              { icon: '🕹️', bg: 'bg-yellow-500' },
+              { icon: '👾', bg: 'bg-green-500' },
+              { icon: '🎯', bg: 'bg-blue-500' }
+            ].map((item, index) => (
               <div 
                 key={index}
-                className="w-12 h-12 bg-gray-800 rounded-xl flex items-center justify-center text-3xl animate-bounce shadow-lg border-2 border-gray-600"
+                className={`w-12 h-12 ${item.bg} rounded-xl flex items-center justify-center text-3xl animate-bounce shadow-lg border-2 border-white`}
                 style={{ animationDelay: `${index * 0.5}s` }}
               >
-                {icon}
+                {item.icon}
               </div>
             ))}
           </div>
