@@ -47,7 +47,7 @@ const About = () => {
       
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="hero-section bg-white/95 backdrop-blur-sm rounded-3xl p-12 mb-8 shadow-2xl text-center relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-red-500 via-orange-500 via-yellow-400 via-green-500 via-cyan-500 via-blue-500 via-indigo-600 via-purple-500 via-pink-500 to-red-500 animate-pulse"></div>
+          <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-red-500 via-red-400 via-orange-500 via-yellow-300 via-lime-400 via-green-500 via-emerald-400 via-teal-500 via-cyan-400 via-sky-500 via-blue-500 via-indigo-500 via-violet-500 via-purple-500 via-fuchsia-500 via-pink-500 to-red-500 animate-pulse"></div>
           
           <h1 className="text-5xl font-extrabold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent mb-4 uppercase tracking-tight">
             A Dita História do Videogame
@@ -60,8 +60,8 @@ const About = () => {
             {[
               { icon: '🎮', bg: 'bg-red-500' },
               { icon: '🕹️', bg: 'bg-yellow-500' },
-              { icon: '👾', bg: 'bg-green-500' },
-              { icon: '🎯', bg: 'bg-blue-500' }
+              { icon: '👾', bg: 'bg-blue-500' },
+              { icon: '🎯', bg: 'bg-green-500' }
             ].map((item, index) => (
               <div 
                 key={index}
@@ -181,19 +181,18 @@ const About = () => {
         <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-8 rounded-2xl text-center relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-full bg-gradient-radial from-white/10 to-transparent animate-pulse"></div>
           <div className="relative z-10">
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <img src={pabloAvatar} alt="Pablo Prime" className="w-12 h-12 rounded-full border-2 border-white/50" />
-              <div>
+            <div className="flex items-start justify-center gap-4 mb-4">
+              <img src={pabloAvatar} alt="Pablo Prime" className="w-20 h-20 rounded-full border-3 border-white/50 flex-shrink-0" />
+              <div className="text-left">
                 <p className="text-lg font-semibold">Contato:</p>
-                <a href="mailto:aditahistoriadovideogame@gmail.com" className="text-yellow-300 hover:text-yellow-100 transition-colors">
+                <a href="mailto:aditahistoriadovideogame@gmail.com" className="text-yellow-300 hover:text-yellow-100 transition-colors text-base">
                   aditahistoriadovideogame@gmail.com
                 </a>
               </div>
             </div>
             <div className="flex items-center justify-center gap-3">
-              <img src={pabloAvatar} alt="Pablo Prime" className="w-8 h-8 rounded-full border-2 border-white/50" />
               <a href="https://linktr.ee/pablorozados" target="_blank" rel="noopener noreferrer" className="text-yellow-300 hover:text-yellow-100 transition-colors font-semibold">
-                📱 Minhas Redes Sociais
+                🌳 Minhas Redes Sociais
               </a>
             </div>
           </div>
