@@ -178,7 +178,7 @@ const About = () => {
           </p>
         </div>
 
-        <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-8 rounded-2xl text-center relative overflow-hidden">
+        <div className="bg-gradient-to-r from-purple-600 to-blue-500 text-white p-8 rounded-2xl text-center relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-full bg-gradient-radial from-white/10 to-transparent animate-pulse"></div>
           <div className="relative z-10">
             <div className="flex items-start justify-center gap-4 mb-4">
