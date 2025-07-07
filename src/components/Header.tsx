@@ -36,6 +36,16 @@ const Header = ({ onAdminClick }: HeaderProps) => {
             Timeline
           </a>
           <Link 
+            to="/propagandas" 
+            className={`font-mono transition-colors ${
+              location.pathname === '/propagandas' 
+                ? 'text-retro-yellow' 
+                : 'text-gray-300 hover:text-retro-yellow'
+            }`}
+          >
+            Propagandas
+          </Link>
+          <Link 
             to="/sobre" 
             className={`font-mono transition-colors ${
               location.pathname === '/sobre' 

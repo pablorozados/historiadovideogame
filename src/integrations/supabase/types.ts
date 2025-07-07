@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      advertisements: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          image_url: string
+          system: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          image_url: string
+          system: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          image_url?: string
+          system?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       episodes: {
         Row: {
           cover_image_url: string | null
