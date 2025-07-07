@@ -10,6 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useAdvertisements, Advertisement } from '@/hooks/useAdvertisements';
 import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
+import ImageViewer from '@/components/ImageViewer';
 
 const Propagandas = () => {
   const { user, signOut, loading: authLoading } = useAuth();
@@ -24,6 +25,7 @@ const Propagandas = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingAd, setEditingAd] = useState<Advertisement | null>(null);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const [viewerImage, setViewerImage] = useState<{url: string, alt: string} | null>(null);
 
   const handleAdminClick = () => {
     if (!user) {
@@ -268,7 +270,8 @@ const Propagandas = () => {
                     <img 
                       src={ad.image_url} 
                       alt={ad.description}
-                      className="w-full h-64 object-cover rounded border border-retro-blue mb-4"
+                      className="w-full h-64 object-cover rounded border border-retro-blue mb-4 cursor-pointer hover:opacity-80 transition-opacity"
+                      onClick={() => setViewerImage({url: ad.image_url, alt: ad.description})}
                     />
                     {user && (
                       <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -325,6 +328,14 @@ const Propagandas = () => {
           </div>
         )}
       </div>
+
+      {/* Image Viewer Modal */}
+      <ImageViewer
+        isOpen={!!viewerImage}
+        onClose={() => setViewerImage(null)}
+        imageUrl={viewerImage?.url || ''}
+        imageAlt={viewerImage?.alt || ''}
+      />
     </div>
   );
 };
