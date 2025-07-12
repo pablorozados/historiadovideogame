@@ -22,7 +22,7 @@ const Header = ({ onAdminClick }: HeaderProps) => {
         
         <nav className="flex items-center gap-6">
           <a 
-            href="https://https://pod.link/1513923155" 
+            href="https://pod.link/1513923155" 
             target="_blank"
             rel="noopener noreferrer"
             className="font-mono text-xs text-gray-400 hover:text-retro-yellow transition-colors hidden md:block"
