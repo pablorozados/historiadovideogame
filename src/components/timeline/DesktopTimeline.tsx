@@ -35,19 +35,21 @@ const DesktopTimeline = ({
   return (
     <div className="hidden lg:block relative px-12 mx-4">
       <div className="timeline-line h-1 w-full mb-8 rounded-full"></div>
-      
-      <div className="relative">
-        {yearGroups.map((yearGroup, index) => (
-          <TimelinePoint
-            key={yearGroup.year}
-            yearGroup={yearGroup}
-            index={index}
-            totalGroups={yearGroups.length}
-            onYearClick={onYearClick}
-            onMouseEnter={onMouseEnter}
-            onMouseLeave={onMouseLeave}
-          />
-        ))}
+      {/* Container com rolagem horizontal */}
+      <div className="relative overflow-x-auto whitespace-nowrap pb-8" style={{ scrollbarWidth: 'thin' }}>
+        <div className="relative min-w-max flex items-center" style={{ height: '120px' }}>
+          {yearGroups.map((yearGroup, index) => (
+            <TimelinePoint
+              key={yearGroup.year}
+              yearGroup={yearGroup}
+              index={index}
+              totalGroups={yearGroups.length}
+              onYearClick={onYearClick}
+              onMouseEnter={onMouseEnter}
+              onMouseLeave={onMouseLeave}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

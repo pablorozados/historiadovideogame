@@ -33,17 +33,11 @@ const TimelinePoint = ({
   onMouseLeave 
 }: TimelinePointProps) => {
   
-  // Calcular posição com mais espaço quando há muitos pontos
-  const spacing = totalGroups > 15 ? 92 : totalGroups > 10 ? 88 : 84;
-  const leftPosition = `${8 + (index / Math.max(1, totalGroups - 1)) * spacing}%`;
+  // Espaçamento entre pontos controlado pelo flexbox do container
 
   return (
     <div
-      className="absolute transform -translate-x-1/2"
-      style={{ 
-        left: leftPosition,
-        top: '-60px'
-      }}
+      className="flex flex-col items-center mx-2 min-w-[64px]"
     >
       {/* Área de hover expandida */}
       <div 
@@ -67,16 +61,13 @@ const TimelinePoint = ({
       </div>
       
       {/* Year Label */}
-      <div className="absolute top-12 left-1/2 transform -translate-x-1/2 text-center pointer-events-none">
+      <div className="text-center mt-2 pointer-events-none">
         <div className={`font-retro text-lg font-bold ${
           yearGroup.events.some(e => e.isMainEpisode) 
             ? 'text-retro-yellow'
             : 'text-retro-blue'
         }`}>
           {yearGroup.year}
-        </div>
-        <div className="font-mono text-xs text-gray-400">
-          {yearGroup.events.length} evento{yearGroup.events.length > 1 ? 's' : ''}
         </div>
       </div>
     </div>
