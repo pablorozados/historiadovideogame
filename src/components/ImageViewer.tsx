@@ -98,20 +98,15 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
               <ZoomIn size={20} />
             </Button>
             <Button
-              onClick={zoomOut}
+              onClick={() => {
+                zoomOut();
+                setPosition({ x: 0, y: 0 }); // Centraliza ao reduzir zoom
+              }}
               variant="ghost"
               size="icon"
               className="text-white hover:bg-white/20"
             >
               <ZoomOut size={20} />
-            </Button>
-            <Button
-              onClick={resetView}
-              variant="ghost"
-              size="icon"
-              className="text-white hover:bg-white/20"
-            >
-              <RotateCcw size={20} />
             </Button>
           </div>
 
@@ -132,7 +127,7 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
               className="max-w-none transition-transform duration-100"
               style={{
                 transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
-                cursor: scale > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default'
+                cursor: isDragging ? 'grabbing' : 'grab'
               }}
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}

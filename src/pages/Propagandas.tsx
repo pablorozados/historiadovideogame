@@ -18,8 +18,9 @@ const Propagandas = () => {
   const { toast } = useToast();
   
   const [formData, setFormData] = useState({
-    description: '',
-    system: '',
+  description: '',
+  system: '',
+  enviada_por: '',
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -49,10 +50,11 @@ const Propagandas = () => {
 
   const handleEdit = (ad: Advertisement) => {
     setEditingAd(ad);
-    setFormData({
-      description: ad.description,
-      system: ad.system,
-    });
+  setFormData({
+    description: ad.description,
+    system: ad.system,
+    enviada_por: ad.enviada_por || '',
+  });
     setShowAdminPanel(true);
   };
 
@@ -88,11 +90,12 @@ const Propagandas = () => {
         imageUrl = uploadedUrl;
       }
 
-      const adData = {
-        description: formData.description,
-        system: formData.system,
-        image_url: imageUrl!,
-      };
+  const adData = {
+    description: formData.description,
+    system: formData.system,
+    enviada_por: formData.enviada_por,
+    image_url: imageUrl!,
+  };
 
       let error;
       if (editingAd) {
@@ -165,6 +168,19 @@ const Propagandas = () => {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
+                <div>
+                  <Label htmlFor="enviada_por" className="font-mono text-gray-300">
+                    Enviada por *
+                  </Label>
+                  <Input
+                    id="enviada_por"
+                    value={formData.enviada_por}
+                    onChange={(e) => setFormData(prev => ({ ...prev, enviada_por: e.target.value }))}
+                    className="bg-black border-retro-blue text-white"
+                    placeholder="Ex: Pablo Prime"
+                    required
+                  />
+                </div>
                 <div>
                   <Label htmlFor="image-upload" className="font-mono text-gray-300">
                     Imagem da Propaganda *
@@ -302,7 +318,7 @@ const Propagandas = () => {
                     {ad.system}
                   </p>
                   <p className="text-xs text-gray-500 mt-2">
-                    Adicionado em: {new Date(ad.created_at).toLocaleDateString('pt-BR')}
+                    Enviada por: {ad.enviada_por ? ad.enviada_por : 'Pablo Prime'}
                   </p>
                 </CardContent>
               </Card>

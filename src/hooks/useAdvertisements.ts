@@ -7,6 +7,7 @@ export interface Advertisement {
   image_url: string;
   description: string;
   system: string;
+  enviada_por?: string;
   created_at: string;
   updated_at: string;
 }
