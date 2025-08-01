@@ -40,6 +40,7 @@ const Propagandas = () => {
     setFormData({
       description: '',
       system: '',
+      enviada_por: '',
     });
     setImageFile(null);
     setEditingAd(null);

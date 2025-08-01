@@ -1,7 +1,8 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Settings } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Settings, Heart } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 interface HeaderProps {
@@ -29,6 +30,36 @@ const Header = ({ onAdminClick }: HeaderProps) => {
           >
             🎧 Escute o último episódio
           </a>
+          
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-gray-400 hover:text-retro-yellow transition-colors font-mono text-xs hidden sm:flex items-center gap-2"
+              >
+                <Heart size={16} />
+                Apoie o podcast
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="bg-black border-retro-yellow max-w-md">
+              <DialogHeader>
+                <DialogTitle className="font-retro text-retro-yellow text-center">
+                  Ajude a manter o podcast
+                </DialogTitle>
+              </DialogHeader>
+              <div className="flex flex-col items-center space-y-4 p-4">
+                <img 
+                  src="/lovable-uploads/8861bd33-a7a0-400d-82ac-8bdb7175ab83.png"
+                  alt="QR Code Pix para doação"
+                  className="w-64 h-64 object-contain"
+                />
+                <p className="font-mono text-gray-300 text-center text-sm">
+                  Use o Pix para contribuir com qualquer valor e ajudar a manter o podcast no ar!
+                </p>
+              </div>
+            </DialogContent>
+          </Dialog>
           <a 
             href="/#timeline" 
             className="font-mono text-gray-300 hover:text-retro-yellow transition-colors"
