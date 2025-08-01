@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Settings, Heart } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 
 interface HeaderProps {
   onAdminClick: () => void;
@@ -11,6 +12,7 @@ interface HeaderProps {
 
 const Header = ({ onAdminClick }: HeaderProps) => {
   const location = useLocation();
+  const { toast } = useToast();
 
   return (
     <header className="border-b border-gray-800 bg-black/50 backdrop-blur-sm sticky top-0 z-50">
@@ -75,6 +77,9 @@ const Header = ({ onAdminClick }: HeaderProps) => {
                       className="text-xs"
                       onClick={() => {
                         navigator.clipboard.writeText("00020101021126580014br.gov.bcb.pix0136bdde579d-62ba-49aa-9e5f-914c4f739d0c5204000053039865802BR5919PABLO FROTA ROZADOS6012PORTO ALEGRE62070503***63046CE2");
+                        toast({
+                          description: "Código copiado!",
+                        });
                       }}
                     >
                       Copiar
