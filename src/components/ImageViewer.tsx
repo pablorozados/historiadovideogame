@@ -20,19 +20,51 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
   const imageRef = useRef<HTMLImageElement>(null);
 
-  const resetView = useCallback(() => {
-    setScale(1);
+  // Função para calcular o fit inicial da imagem
+  const calculateInitialFit = useCallback(() => {
+    if (!imageRef.current) return;
+    
+    const container = imageRef.current.parentElement;
+    if (!container) return;
+    
+    const containerWidth = container.clientWidth;
+    const containerHeight = container.clientHeight;
+    const imageWidth = imageRef.current.naturalWidth;
+    const imageHeight = imageRef.current.naturalHeight;
+    
+    // Calcula o scale para fit na tela
+    const scaleX = containerWidth / imageWidth;
+    const scaleY = containerHeight / imageHeight;
+    const initialScale = Math.min(scaleX, scaleY, 1); // Não aumenta além do tamanho original
+    
+    setScale(initialScale);
     setPosition({ x: 0, y: 0 });
+    setImageSize({ width: imageWidth, height: imageHeight });
   }, []);
 
+  const resetView = useCallback(() => {
+    calculateInitialFit();
+  }, [calculateInitialFit]);
+
   const zoomIn = useCallback(() => {
-    setScale(prev => Math.min(prev * 1.2, 5));
+    setScale(prev => {
+      const newScale = Math.min(prev * 1.2, 5);
+      // Centraliza ao dar zoom in também
+      setPosition({ x: 0, y: 0 });
+      return newScale;
+    });
   }, []);
 
   const zoomOut = useCallback(() => {
-    setScale(prev => Math.max(prev / 1.2, 0.5));
+    setScale(prev => {
+      const newScale = Math.max(prev / 1.2, 0.1);
+      // Centraliza ao dar zoom out
+      setPosition({ x: 0, y: 0 });
+      return newScale;
+    });
   }, []);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
@@ -98,15 +130,21 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
               <ZoomIn size={20} />
             </Button>
             <Button
-              onClick={() => {
-                zoomOut();
-                setPosition({ x: 0, y: 0 }); // Centraliza ao reduzir zoom
-              }}
+              onClick={zoomOut}
               variant="ghost"
               size="icon"
               className="text-white hover:bg-white/20"
             >
               <ZoomOut size={20} />
+            </Button>
+            <Button
+              onClick={resetView}
+              variant="ghost"
+              size="icon"
+              className="text-white hover:bg-white/20"
+              title="Resetar zoom"
+            >
+              <RotateCcw size={20} />
             </Button>
           </div>
 
@@ -129,6 +167,7 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
                 transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
                 cursor: isDragging ? 'grabbing' : 'grab'
               }}
+              onLoad={calculateInitialFit}
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
               onMouseUp={handleMouseUp}
