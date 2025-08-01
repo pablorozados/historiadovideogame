@@ -50,13 +50,37 @@ const Header = ({ onAdminClick }: HeaderProps) => {
               </DialogHeader>
               <div className="flex flex-col items-center space-y-4 p-4">
                 <img 
-                  src="/lovable-uploads/8861bd33-a7a0-400d-82ac-8bdb7175ab83.png"
+                  src="/lovable-uploads/c603ed23-7c97-4397-98a9-2c6a61335b95.png"
                   alt="QR Code Pix para doação"
-                  className="w-64 h-64 object-contain"
+                  className="w-80 h-80 object-contain"
                 />
                 <p className="font-mono text-gray-300 text-center text-sm">
                   Use o Pix para contribuir com qualquer valor e ajudar a manter o podcast no ar!
                 </p>
+                
+                <div className="w-full space-y-2">
+                  <p className="font-mono text-gray-300 text-center text-xs">
+                    Ou use o código Pix copia e cola:
+                  </p>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value="00020101021126580014br.gov.bcb.pix0136bdde579d-62ba-49aa-9e5f-914c4f739d0c5204000053039865802BR5919PABLO FROTA ROZADOS6012PORTO ALEGRE62070503***63046CE2"
+                      readOnly
+                      className="flex-1 bg-gray-800 border border-gray-600 rounded px-2 py-1 text-xs font-mono text-gray-300 truncate"
+                    />
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="text-xs"
+                      onClick={() => {
+                        navigator.clipboard.writeText("00020101021126580014br.gov.bcb.pix0136bdde579d-62ba-49aa-9e5f-914c4f739d0c5204000053039865802BR5919PABLO FROTA ROZADOS6012PORTO ALEGRE62070503***63046CE2");
+                      }}
+                    >
+                      Copiar
+                    </Button>
+                  </div>
+                </div>
               </div>
             </DialogContent>
           </Dialog>
