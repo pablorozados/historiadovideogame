@@ -32,16 +32,22 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
     const imageWidth = imageRef.current.naturalWidth;
     const imageHeight = imageRef.current.naturalHeight;
     
+    console.log('Container:', { containerWidth, containerHeight });
+    console.log('Image:', { imageWidth, imageHeight });
+    
     if (imageWidth === 0 || imageHeight === 0) return 1;
     
     // Calcula o scale para fit na tela com 90% do espaço disponível
     const scaleX = (containerWidth * 0.9) / imageWidth;
     const scaleY = (containerHeight * 0.9) / imageHeight;
-    return Math.min(scaleX, scaleY, 1); // Não aumenta além do tamanho original
+    const fitScale = Math.min(scaleX, scaleY, 1);
+    console.log('Calculated fit scale:', fitScale);
+    return fitScale;
   }, []);
 
   const resetView = useCallback(() => {
     const fitScale = calculateFitScale();
+    console.log('Reset view with scale:', fitScale);
     setInitialScale(fitScale);
     setScale(fitScale);
     setPosition({ x: 0, y: 0 });
@@ -91,6 +97,7 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
   }, [initialScale]);
 
   const handleImageLoad = useCallback(() => {
+    console.log('Image loaded, resetting view...');
     // Pequeno delay para garantir que o container está renderizado
     setTimeout(() => {
       resetView();
