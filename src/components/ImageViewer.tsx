@@ -48,13 +48,21 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
   }, [calculateFitScale]);
 
   const zoomIn = useCallback(() => {
-    setScale(prev => Math.min(prev * 1.2, 3));
-    setPosition({ x: 0, y: 0 }); // Centraliza
+    setScale(prev => {
+      const newScale = Math.min(prev * 1.2, 3);
+      // Recentra ao fazer zoom
+      setPosition({ x: 0, y: 0 });
+      return newScale;
+    });
   }, []);
 
   const zoomOut = useCallback(() => {
-    setScale(prev => Math.max(prev / 1.2, initialScale * 0.5));
-    setPosition({ x: 0, y: 0 }); // Centraliza
+    setScale(prev => {
+      const newScale = Math.max(prev / 1.2, initialScale * 0.5);
+      // Recentra ao fazer zoom
+      setPosition({ x: 0, y: 0 });
+      return newScale;
+    });
   }, [initialScale]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
@@ -82,12 +90,20 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
 
   const handleWheel = useCallback((e: React.WheelEvent) => {
     e.preventDefault();
-    if (e.deltaY < 0) {
-      zoomIn();
-    } else {
-      zoomOut();
-    }
-  }, [zoomIn, zoomOut]);
+    const rect = e.currentTarget.getBoundingClientRect();
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    
+    setScale(prev => {
+      const newScale = e.deltaY < 0 
+        ? Math.min(prev * 1.1, 3)
+        : Math.max(prev / 1.1, initialScale * 0.5);
+      
+      // Sempre centraliza após zoom
+      setPosition({ x: 0, y: 0 });
+      return newScale;
+    });
+  }, [initialScale]);
 
   const handleImageLoad = useCallback(() => {
     // Pequeno delay para garantir que o container está renderizado
