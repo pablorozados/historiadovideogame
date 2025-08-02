@@ -49,10 +49,12 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
 
   const zoomIn = useCallback(() => {
     setScale(prev => Math.min(prev * 1.2, 3));
+    setPosition({ x: 0, y: 0 });
   }, []);
 
   const zoomOut = useCallback(() => {
     setScale(prev => Math.max(prev / 1.2, initialScale * 0.5));
+    setPosition({ x: 0, y: 0 });
   }, [initialScale]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
@@ -81,11 +83,12 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
   const handleWheel = useCallback((e: React.WheelEvent) => {
     e.preventDefault();
     if (e.deltaY < 0) {
-      zoomIn();
+      setScale(prev => Math.min(prev * 1.1, 3));
     } else {
-      zoomOut();
+      setScale(prev => Math.max(prev / 1.1, initialScale * 0.5));
     }
-  }, [zoomIn, zoomOut]);
+    setPosition({ x: 0, y: 0 });
+  }, [initialScale]);
 
   const handleImageLoad = useCallback(() => {
     // Pequeno delay para garantir que o container está renderizado
@@ -166,7 +169,7 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
               alt={imageAlt}
               className="transition-transform duration-150 ease-out"
               style={{
-                transform: `scale(${scale})`,
+                transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
                 cursor: isDragging ? 'grabbing' : (scale > initialScale ? 'grab' : 'default'),
                 maxWidth: 'none',
                 maxHeight: 'none'
