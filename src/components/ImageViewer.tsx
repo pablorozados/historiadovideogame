@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { ZoomIn, ZoomOut, RotateCcw, X } from 'lucide-react';
@@ -20,71 +20,61 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
+  const [initialScale, setInitialScale] = useState(1);
   const imageRef = useRef<HTMLImageElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  // Função para calcular o fit inicial da imagem
-  const calculateInitialFit = useCallback(() => {
-    if (!imageRef.current) return;
+  const calculateFitScale = useCallback(() => {
+    if (!imageRef.current || !containerRef.current) return 1;
     
-    const container = imageRef.current.parentElement;
-    if (!container) return;
-    
-    const containerWidth = container.clientWidth;
-    const containerHeight = container.clientHeight;
+    const containerWidth = containerRef.current.clientWidth;
+    const containerHeight = containerRef.current.clientHeight;
     const imageWidth = imageRef.current.naturalWidth;
     const imageHeight = imageRef.current.naturalHeight;
     
-    // Calcula o scale para fit na tela
-    const scaleX = containerWidth / imageWidth;
-    const scaleY = containerHeight / imageHeight;
-    const initialScale = Math.min(scaleX, scaleY, 1); // Não aumenta além do tamanho original
+    if (imageWidth === 0 || imageHeight === 0) return 1;
     
-    setScale(initialScale);
-    setPosition({ x: 0, y: 0 });
-    setImageSize({ width: imageWidth, height: imageHeight });
+    // Calcula o scale para fit na tela com 90% do espaço disponível
+    const scaleX = (containerWidth * 0.9) / imageWidth;
+    const scaleY = (containerHeight * 0.9) / imageHeight;
+    return Math.min(scaleX, scaleY, 1); // Não aumenta além do tamanho original
   }, []);
 
   const resetView = useCallback(() => {
-    calculateInitialFit();
-  }, [calculateInitialFit]);
+    const fitScale = calculateFitScale();
+    setInitialScale(fitScale);
+    setScale(fitScale);
+    setPosition({ x: 0, y: 0 });
+  }, [calculateFitScale]);
 
   const zoomIn = useCallback(() => {
-    setScale(prev => {
-      const newScale = Math.min(prev * 1.2, 5);
-      // Centraliza ao dar zoom in também
-      setPosition({ x: 0, y: 0 });
-      return newScale;
-    });
+    setScale(prev => Math.min(prev * 1.2, 3));
+    setPosition({ x: 0, y: 0 }); // Centraliza
   }, []);
 
   const zoomOut = useCallback(() => {
-    setScale(prev => {
-      const newScale = Math.max(prev / 1.2, 0.1);
-      // Centraliza ao dar zoom out
-      setPosition({ x: 0, y: 0 });
-      return newScale;
-    });
-  }, []);
+    setScale(prev => Math.max(prev / 1.2, initialScale * 0.5));
+    setPosition({ x: 0, y: 0 }); // Centraliza
+  }, [initialScale]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    if (scale > 1) {
+    if (scale > initialScale) {
       setIsDragging(true);
       setDragStart({
         x: e.clientX - position.x,
         y: e.clientY - position.y
       });
     }
-  }, [scale, position]);
+  }, [scale, position, initialScale]);
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (isDragging && scale > 1) {
+    if (isDragging && scale > initialScale) {
       setPosition({
         x: e.clientX - dragStart.x,
         y: e.clientY - dragStart.y
       });
     }
-  }, [isDragging, scale, dragStart]);
+  }, [isDragging, scale, dragStart, initialScale]);
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(false);
@@ -99,11 +89,22 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
     }
   }, [zoomIn, zoomOut]);
 
-  React.useEffect(() => {
-    if (!isOpen) {
+  const handleImageLoad = useCallback(() => {
+    // Pequeno delay para garantir que o container está renderizado
+    setTimeout(() => {
       resetView();
+    }, 100);
+  }, [resetView]);
+
+  // Reset quando o modal abre
+  useEffect(() => {
+    if (isOpen) {
+      // Reset inicial
+      setScale(1);
+      setPosition({ x: 0, y: 0 });
+      setInitialScale(1);
     }
-  }, [isOpen, resetView]);
+  }, [isOpen, imageUrl]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -126,6 +127,7 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
               variant="ghost"
               size="icon"
               className="text-white hover:bg-white/20"
+              title="Zoom In"
             >
               <ZoomIn size={20} />
             </Button>
@@ -134,6 +136,7 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
               variant="ghost"
               size="icon"
               className="text-white hover:bg-white/20"
+              title="Zoom Out"
             >
               <ZoomOut size={20} />
             </Button>
@@ -142,7 +145,7 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
               variant="ghost"
               size="icon"
               className="text-white hover:bg-white/20"
-              title="Resetar zoom"
+              title="Ajustar à tela"
             >
               <RotateCcw size={20} />
             </Button>
@@ -155,6 +158,7 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
 
           {/* Image container */}
           <div 
+            ref={containerRef}
             className="w-full h-full flex items-center justify-center overflow-hidden"
             onWheel={handleWheel}
           >
@@ -162,12 +166,14 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
               ref={imageRef}
               src={imageUrl}
               alt={imageAlt}
-              className="max-w-none transition-transform duration-100"
+              className="transition-transform duration-150 ease-out"
               style={{
                 transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
-                cursor: isDragging ? 'grabbing' : 'grab'
+                cursor: isDragging ? 'grabbing' : (scale > initialScale ? 'grab' : 'default'),
+                maxWidth: 'none',
+                maxHeight: 'none'
               }}
-              onLoad={calculateInitialFit}
+              onLoad={handleImageLoad}
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
               onMouseUp={handleMouseUp}
