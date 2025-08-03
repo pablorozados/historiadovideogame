@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { ZoomIn, ZoomOut, RotateCcw, X } from 'lucide-react';
@@ -20,65 +20,38 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const [initialScale, setInitialScale] = useState(1);
-  const imageRef = useRef<HTMLImageElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  const calculateFitScale = useCallback(() => {
-    if (!imageRef.current || !containerRef.current) return 1;
-    
-    const containerWidth = containerRef.current.clientWidth;
-    const containerHeight = containerRef.current.clientHeight;
-    const imageWidth = imageRef.current.naturalWidth;
-    const imageHeight = imageRef.current.naturalHeight;
-    
-    console.log('Container:', { containerWidth, containerHeight });
-    console.log('Image:', { imageWidth, imageHeight });
-    
-    if (imageWidth === 0 || imageHeight === 0) return 1;
-    
-    // Calcula o scale para fit na tela com 90% do espaço disponível
-    const scaleX = (containerWidth * 0.9) / imageWidth;
-    const scaleY = (containerHeight * 0.9) / imageHeight;
-    const fitScale = Math.min(scaleX, scaleY, 1);
-    console.log('Calculated fit scale:', fitScale);
-    return fitScale;
-  }, []);
 
   const resetView = useCallback(() => {
-    const fitScale = calculateFitScale();
-    console.log('Reset view with scale:', fitScale);
-    setInitialScale(fitScale);
-    setScale(fitScale);
+    setScale(1);
     setPosition({ x: 0, y: 0 });
-  }, [calculateFitScale]);
+  }, []);
 
   const zoomIn = useCallback(() => {
     setScale(prev => Math.min(prev * 1.2, 3));
   }, []);
 
   const zoomOut = useCallback(() => {
-    setScale(prev => Math.max(prev / 1.2, initialScale * 0.5));
-  }, [initialScale]);
+    setScale(prev => Math.max(prev / 1.2, 0.5));
+  }, []);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    if (scale > initialScale) {
+    if (scale > 1) {
       setIsDragging(true);
       setDragStart({
         x: e.clientX - position.x,
         y: e.clientY - position.y
       });
     }
-  }, [scale, position, initialScale]);
+  }, [scale, position]);
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (isDragging && scale > initialScale) {
+    if (isDragging && scale > 1) {
       setPosition({
         x: e.clientX - dragStart.x,
         y: e.clientY - dragStart.y
       });
     }
-  }, [isDragging, scale, dragStart, initialScale]);
+  }, [isDragging, scale, dragStart]);
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(false);
@@ -89,26 +62,15 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
     if (e.deltaY < 0) {
       setScale(prev => Math.min(prev * 1.1, 3));
     } else {
-      setScale(prev => Math.max(prev / 1.1, initialScale * 0.5));
+      setScale(prev => Math.max(prev / 1.1, 0.5));
     }
-    setPosition({ x: 0, y: 0 });
-  }, [initialScale]);
-
-  const handleImageLoad = useCallback(() => {
-    console.log('Image loaded, resetting view...');
-    // Pequeno delay para garantir que o container está renderizado
-    setTimeout(() => {
-      resetView();
-    }, 100);
-  }, [resetView]);
+  }, []);
 
   // Reset quando o modal abre
   useEffect(() => {
     if (isOpen) {
-      // Reset inicial
       setScale(1);
       setPosition({ x: 0, y: 0 });
-      setInitialScale(1);
     }
   }, [isOpen, imageUrl]);
 
@@ -164,22 +126,17 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
 
           {/* Image container */}
           <div 
-            ref={containerRef}
-            className="w-full h-full flex items-center justify-center overflow-hidden"
+            className="w-full h-full flex items-center justify-center overflow-hidden p-4"
             onWheel={handleWheel}
           >
             <img
-              ref={imageRef}
               src={imageUrl}
               alt={imageAlt}
-              className="transition-transform duration-150 ease-out"
+              className="max-w-full max-h-full object-contain transition-transform duration-150 ease-out"
               style={{
                 transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
-                cursor: isDragging ? 'grabbing' : (scale > initialScale ? 'grab' : 'default'),
-                maxWidth: 'none',
-                maxHeight: 'none'
+                cursor: isDragging ? 'grabbing' : (scale > 1 ? 'grab' : 'default')
               }}
-              onLoad={handleImageLoad}
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
               onMouseUp={handleMouseUp}
