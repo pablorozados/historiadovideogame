@@ -55,12 +55,10 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
 
   const zoomIn = useCallback(() => {
     setScale(prev => Math.min(prev * 1.2, 3));
-    setPosition({ x: 0, y: 0 });
   }, []);
 
   const zoomOut = useCallback(() => {
     setScale(prev => Math.max(prev / 1.2, initialScale * 0.5));
-    setPosition({ x: 0, y: 0 });
   }, [initialScale]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
