@@ -93,10 +93,10 @@ const TimelineEventSelector = ({ selectedYear, onEpisodeClick, onClose }: Timeli
                     className="w-10 h-10 object-cover rounded border border-retro-blue"
                   />
                   <div className="flex-1 min-w-0">
-                    <h5 className="font-mono text-base text-gray-300 truncate">
+                    <h5 className="font-mono text-lg text-gray-300 truncate">
                       {event.title}
                     </h5>
-                    <p className="font-mono text-sm text-gray-500">
+                    <p className="font-mono text-base text-gray-500">
                       {new Date(event.date).toLocaleDateString('pt-BR')} | {event.episode.title}
                     </p>
                   </div>
