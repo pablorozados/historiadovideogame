@@ -32,7 +32,7 @@ const TimelineEventSelector = ({ selectedYear, onEpisodeClick, onClose }: Timeli
 
   return (
     <div className="mt-20 bg-retro-black border-2 border-retro-yellow rounded-lg p-6">
-      <h3 className="font-retro text-xl text-retro-yellow mb-4">
+      <h3 className="font-retro text-2xl text-retro-yellow mb-4">
         Eventos de {selectedYear.year}
       </h3>
       
@@ -40,7 +40,7 @@ const TimelineEventSelector = ({ selectedYear, onEpisodeClick, onClose }: Timeli
         {/* Seção de Episódios */}
         {episodes.length > 0 && (
           <div>
-            <h4 className="font-mono text-sm text-retro-yellow mb-3 flex items-center gap-2">
+            <h4 className="font-mono text-lg text-retro-yellow mb-3 flex items-center gap-2">
               🎧 Episódios ({episodes.length})
             </h4>
             <div className="grid gap-3">
@@ -56,14 +56,14 @@ const TimelineEventSelector = ({ selectedYear, onEpisodeClick, onClose }: Timeli
                     className="w-14 h-14 object-cover rounded border-2 border-retro-yellow"
                   />
                   <div className="flex-1 min-w-0">
-                    <h5 className="font-mono text-base text-retro-yellow font-bold truncate">
+                    <h5 className="font-mono text-lg text-retro-yellow font-bold truncate">
                       {event.title}
                     </h5>
-                    <p className="font-mono text-sm text-gray-300">
+                    <p className="font-mono text-base text-gray-300">
                       {new Date(event.date).toLocaleDateString('pt-BR')}
                     </p>
                      {event.description && (
-                       <p className="font-mono text-xs text-gray-400 mt-1">
+                       <p className="font-mono text-sm text-gray-400 mt-1">
                          {event.description}
                        </p>
                      )}
@@ -77,7 +77,7 @@ const TimelineEventSelector = ({ selectedYear, onEpisodeClick, onClose }: Timeli
         {/* Seção de Eventos Históricos */}
         {historicalEvents.length > 0 && (
           <div>
-            <h4 className="font-mono text-sm text-gray-400 mb-3 flex items-center gap-2">
+            <h4 className="font-mono text-lg text-gray-400 mb-3 flex items-center gap-2">
               📅 Eventos Históricos ({historicalEvents.length})
             </h4>
             <div className="grid gap-2">
@@ -93,10 +93,10 @@ const TimelineEventSelector = ({ selectedYear, onEpisodeClick, onClose }: Timeli
                     className="w-10 h-10 object-cover rounded border border-retro-blue"
                   />
                   <div className="flex-1 min-w-0">
-                    <h5 className="font-mono text-sm text-gray-300 truncate">
+                    <h5 className="font-mono text-base text-gray-300 truncate">
                       {event.title}
                     </h5>
-                    <p className="font-mono text-xs text-gray-500">
+                    <p className="font-mono text-sm text-gray-500">
                       {new Date(event.date).toLocaleDateString('pt-BR')} | {event.episode.title}
                     </p>
                   </div>
