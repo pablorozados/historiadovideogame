@@ -23,7 +23,7 @@ const Header = ({ onAdminClick }: HeaderProps) => {
           </Link>
         </div>
         
-        <nav className="flex items-center gap-6">
+        <nav className="flex items-center gap-2 md:gap-6">
           <a 
             href="https://pod.link/1513923155" 
             target="_blank"
@@ -38,10 +38,11 @@ const Header = ({ onAdminClick }: HeaderProps) => {
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-gray-400 hover:text-retro-yellow transition-colors font-mono text-xs hidden sm:flex items-center gap-2"
+                className="text-gray-400 hover:text-retro-yellow transition-colors font-mono text-xs flex items-center gap-1 md:gap-2"
               >
-                <Heart size={16} />
-                Apoie o podcast
+                <Heart size={14} className="md:size-4" />
+                <span className="hidden sm:inline">Apoie o podcast</span>
+                <span className="sm:hidden">Apoie</span>
               </Button>
             </DialogTrigger>
             <DialogContent className="bg-black border-retro-yellow max-w-md">
