@@ -19,9 +19,10 @@ interface TimelineEventSelectorProps {
   selectedYear: YearGroup;
   onEpisodeClick: (episode: Episode) => void;
   onClose: () => void;
+  onImageClick?: (imageUrl: string, title: string) => void;
 }
 
-const TimelineEventSelector = ({ selectedYear, onEpisodeClick, onClose }: TimelineEventSelectorProps) => {
+const TimelineEventSelector = ({ selectedYear, onEpisodeClick, onClose, onImageClick }: TimelineEventSelectorProps) => {
   const separateEventsByType = (events: YearGroup['events']) => {
     const episodes = events.filter(e => e.isMainEpisode);
     const historicalEvents = events.filter(e => !e.isMainEpisode);
@@ -84,15 +85,23 @@ const TimelineEventSelector = ({ selectedYear, onEpisodeClick, onClose }: Timeli
               {historicalEvents.map((event) => (
                 <div
                   key={`${event.episode.id}-${event.id}`}
-                  className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg cursor-pointer hover:bg-gray-700/50 transition-colors border border-gray-600/30"
-                  onClick={() => onEpisodeClick(event.episode)}
+                  className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg hover:bg-gray-700/50 transition-colors border border-gray-600/30"
                 >
                   <img
                     src={event.image_url || event.episode.cover_image_url || 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&h=400&fit=crop&crop=center'}
                     alt={event.title}
-                    className="w-10 h-10 object-cover rounded border border-retro-blue"
+                    className="w-10 h-10 object-cover rounded border border-retro-blue cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (onImageClick) {
+                        onImageClick(event.image_url || event.episode.cover_image_url || '', event.title);
+                      }
+                    }}
                   />
-                  <div className="flex-1 min-w-0">
+                  <div 
+                    className="flex-1 min-w-0 cursor-pointer"
+                    onClick={() => onEpisodeClick(event.episode)}
+                  >
                     <h5 className="font-mono text-lg text-gray-300 truncate">
                       {event.title}
                     </h5>
