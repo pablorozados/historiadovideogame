@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,6 +11,7 @@ import { useAdvertisements, Advertisement } from '@/hooks/useAdvertisements';
 import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
 import ImageViewer from '@/components/ImageViewer';
+import SearchFilter from '@/components/SearchFilter';
 
 const Propagandas = () => {
   const { user, signOut, loading: authLoading } = useAuth();
@@ -27,6 +28,19 @@ const Propagandas = () => {
   const [editingAd, setEditingAd] = useState<Advertisement | null>(null);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [viewerImage, setViewerImage] = useState<{url: string, alt: string} | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Filtrar propagandas baseado no termo de busca
+  const filteredAdvertisements = useMemo(() => {
+    if (!searchTerm.trim()) return advertisements;
+    
+    const term = searchTerm.toLowerCase();
+    return advertisements.filter(ad => 
+      ad.system?.toLowerCase().includes(term) ||
+      ad.description?.toLowerCase().includes(term) ||
+      ad.enviada_por?.toLowerCase().includes(term)
+    );
+  }, [advertisements, searchTerm]);
 
   const handleAdminClick = () => {
     if (!user) {
@@ -273,14 +287,34 @@ const Propagandas = () => {
           </Card>
         )}
 
+        {/* Search Section */}
+        <section className="mb-8 flex justify-center">
+          <SearchFilter
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            placeholder="Digite o nome do console..."
+            label="Filtrar por console:"
+          />
+        </section>
+
         {/* Advertisements Grid */}
         {adsLoading ? (
           <div className="text-center py-16">
             <div className="text-retro-yellow font-mono">Carregando propagandas...</div>
           </div>
+        ) : filteredAdvertisements.length === 0 && searchTerm ? (
+          <div className="text-center py-16">
+            <div className="text-4xl mb-4">🔍</div>
+            <p className="font-mono text-gray-400 mb-2">
+              Nenhuma propaganda encontrada para "{searchTerm}"
+            </p>
+            <p className="font-mono text-sm text-gray-500">
+              Tente buscar por outro console
+            </p>
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {advertisements.map((ad) => (
+            {filteredAdvertisements.map((ad) => (
               <Card key={ad.id} className="retro-card group hover:scale-105 transition-transform">
                 <CardContent className="p-4">
                   <div className="relative">
@@ -325,7 +359,7 @@ const Propagandas = () => {
               </Card>
             ))}
             
-            {advertisements.length === 0 && (
+            {filteredAdvertisements.length === 0 && !searchTerm && (
               <div className="col-span-full text-center py-16">
                 <ImageIcon size={64} className="mx-auto text-gray-600 mb-4" />
                 <p className="text-gray-400 font-mono">

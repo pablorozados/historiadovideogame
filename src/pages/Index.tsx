@@ -1,10 +1,11 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Play, Calendar, ExternalLink } from 'lucide-react';
 import TimelineSection from '@/components/TimelineSection';
 import Header from '@/components/Header';
+import SearchFilter from '@/components/SearchFilter';
 import { useEpisodes, Episode } from '@/hooks/useEpisodes';
 
 interface YearGroup {
@@ -23,7 +24,32 @@ interface YearGroup {
 const Index = () => {
   const [selectedEpisode, setSelectedEpisode] = useState<Episode | null>(null);
   const [selectedYear, setSelectedYear] = useState<YearGroup | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const { episodes, loading } = useEpisodes();
+
+  // Filtrar episódios baseado no termo de busca
+  const filteredEpisodes = useMemo(() => {
+    if (!searchTerm.trim()) return episodes;
+    
+    const term = searchTerm.toLowerCase();
+    return episodes.filter(episode => {
+      // Buscar no título e descrição do episódio
+      const titleMatch = episode.title?.toLowerCase().includes(term);
+      const descMatch = episode.description?.toLowerCase().includes(term);
+      
+      // Buscar nos eventos da timeline
+      const timelineEvents = Array.isArray(episode.timeline_events) 
+        ? episode.timeline_events 
+        : JSON.parse(episode.timeline_events || '[]');
+      
+      const timelineMatch = timelineEvents.some((event: any) => 
+        event.title?.toLowerCase().includes(term) ||
+        event.description?.toLowerCase().includes(term)
+      );
+      
+      return titleMatch || descMatch || timelineMatch;
+    });
+  }, [episodes, searchTerm]);
 
   const handleEpisodeClick = (episode: Episode) => {
     setSelectedEpisode(episode);
@@ -111,6 +137,16 @@ const Index = () => {
         </section>
 
 
+        {/* Search Section */}
+        <section className="mb-12 flex justify-center">
+          <SearchFilter
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            placeholder="Digite para filtrar por console..."
+            label="Filtrar por console:"
+          />
+        </section>
+
         {/* Timeline Section */}
         {loading ? (
           <div className="text-center py-16">
@@ -119,9 +155,19 @@ const Index = () => {
               Carregando episódios...
             </p>
           </div>
+        ) : filteredEpisodes.length === 0 && searchTerm ? (
+          <div className="text-center py-16">
+            <div className="text-4xl mb-4">🔍</div>
+            <p className="font-mono text-gray-400 mb-2">
+              Nenhum resultado encontrado para "{searchTerm}"
+            </p>
+            <p className="font-mono text-sm text-gray-500">
+              Tente buscar por outro termo
+            </p>
+          </div>
         ) : (
           <TimelineSection 
-            episodes={episodes} 
+            episodes={filteredEpisodes} 
             onEpisodeClick={handleEpisodeClick}
             onYearClick={handleYearClick}
           />
