@@ -78,16 +78,6 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-full max-h-full w-screen h-screen p-0 bg-black/95 border-none">
         <div className="relative w-full h-full flex items-center justify-center">
-          {/* Close button */}
-          <Button
-            onClick={onClose}
-            variant="ghost"
-            size="icon"
-            className="absolute top-4 right-4 z-50 text-white hover:bg-white/20"
-          >
-            <X size={24} />
-          </Button>
-
           {/* Controls */}
           <div className="absolute top-4 left-4 z-50 flex gap-2">
             <Button
