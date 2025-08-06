@@ -128,6 +128,23 @@ const Index = () => {
         )}
       </main>
 
+      {/* Footer */}
+      <footer className="bg-background/50 backdrop-blur-sm border-t border-border mt-16">
+        <div className="container mx-auto px-4 py-8 text-center">
+          <div className="font-mono text-sm text-muted-foreground mb-4">
+            © A DITA HISTÓRIA DO VIDEOGAME 2020-2025.
+          </div>
+          <div className="font-mono text-sm">
+            <a 
+              href="mailto:aditahitoriadovideogame@gmail.com" 
+              className="text-primary hover:text-primary/80 transition-colors underline underline-offset-4"
+            >
+              Entre em contato.
+            </a>
+          </div>
+        </div>
+      </footer>
+
       {/* Episode Detail Modal */}
       <Dialog open={!!selectedEpisode} onOpenChange={closeDialog}>
         <DialogContent className="retro-card border-retro-yellow max-w-4xl max-h-[90vh] overflow-y-auto">
