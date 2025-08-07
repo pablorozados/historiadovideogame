@@ -6,6 +6,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import { Settings, Heart, Menu } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { useEpisodes } from '@/hooks/useEpisodes';
 
 interface HeaderProps {
   onAdminClick: () => void;
@@ -14,6 +15,12 @@ interface HeaderProps {
 const Header = ({ onAdminClick }: HeaderProps) => {
   const location = useLocation();
   const { toast } = useToast();
+  const { episodes } = useEpisodes();
+
+  // Obter o último episódio (mais recente)
+  const latestEpisode = episodes.length > 0 ? episodes.reduce((latest, current) => {
+    return current.year > latest.year ? current : latest;
+  }) : null;
 
   return (
     <header className="border-b border-gray-800 bg-black/50 backdrop-blur-sm sticky top-0 z-50">
@@ -27,7 +34,7 @@ const Header = ({ onAdminClick }: HeaderProps) => {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-6">
           <a 
-            href="https://pod.link/1513923155" 
+            href={latestEpisode?.listen_url || "https://pod.link/1513923155"} 
             target="_blank"
             rel="noopener noreferrer"
             className="font-mono text-xs text-gray-400 hover:text-retro-yellow transition-colors"
@@ -148,7 +155,7 @@ const Header = ({ onAdminClick }: HeaderProps) => {
               </SheetHeader>
               <div className="flex flex-col space-y-6 mt-8">
                 <a 
-                  href="https://pod.link/1513923155" 
+                  href={latestEpisode?.listen_url || "https://pod.link/1513923155"} 
                   target="_blank"
                   rel="noopener noreferrer"
                   className="font-mono text-gray-300 hover:text-retro-yellow transition-colors flex items-center gap-2"
