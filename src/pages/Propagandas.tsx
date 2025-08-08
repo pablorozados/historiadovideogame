@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
 import ImageViewer from '@/components/ImageViewer';
 import SearchFilter from '@/components/SearchFilter';
+import SEOHead from '@/components/SEOHead';
 
 const Propagandas = () => {
   const { user, signOut, loading: authLoading } = useAuth();
@@ -139,6 +140,12 @@ const Propagandas = () => {
 
   return (
     <div className="min-h-screen bg-retro-black">
+      <SEOHead 
+        title="Propagandas Antigas - A Dita História do Videogame"
+        description="Coleção nostálgica de propagandas históricas de videogames, consoles e jogos que marcaram época. Explore anúncios clássicos dos games."
+        keywords="propagandas videogame, anúncios games antigos, publicidade consoles, marketing jogos retrô"
+        canonicalUrl="https://aditahistoriadovideogame.lovable.app/propagandas"
+      />
       <Header onAdminClick={handleAdminClick} />
       
       <div className="container mx-auto px-4 py-8">

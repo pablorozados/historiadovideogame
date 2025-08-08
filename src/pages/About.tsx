@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import Header from '@/components/Header';
+import SEOHead from '@/components/SEOHead';
 // Using user's actual images - force reload with new names
 import spotifyIcon from '@/assets/icons/spotify-new.png';
 import applePodcastsIcon from '@/assets/icons/apple-podcasts-new.png';
@@ -43,6 +44,12 @@ const About = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600">
+      <SEOHead 
+        title="Sobre - A Dita História do Videogame | Podcast de Games"
+        description="Conheça a missão do podcast A Dita História do Videogame. Formato cronológico, pesquisa detalhada e timeline interativa sobre a evolução dos videogames."
+        keywords="podcast videogame, história games, sobre podcast, formato cronológico, pesquisa games"
+        canonicalUrl="https://aditahistoriadovideogame.lovable.app/sobre"
+      />
       <Header onAdminClick={() => window.location.href = '/admin/login'} />
       
       <div className="max-w-4xl mx-auto px-4 py-8">

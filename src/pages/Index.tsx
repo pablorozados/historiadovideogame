@@ -7,6 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Play, Calendar, ExternalLink } from 'lucide-react';
 import TimelineSection from '@/components/TimelineSection';
 import Header from '@/components/Header';
+import LoadingSkeleton from '@/components/LoadingSkeleton';
+import SEOHead from '@/components/SEOHead';
 import { useEpisodes, Episode } from '@/hooks/useEpisodes';
 
 interface YearGroup {
@@ -25,9 +27,7 @@ interface YearGroup {
 const Index = () => {
   const [selectedEpisode, setSelectedEpisode] = useState<Episode | null>(null);
   const [selectedYear, setSelectedYear] = useState<YearGroup | null>(null);
-  const [episodeSearch, setEpisodeSearch] = useState('');
-  const [yearSearch, setYearSearch] = useState('');
-  const [consoleSearch, setConsoleSearch] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const { episodes, loading } = useEpisodes();
 
   // Obter o último episódio (mais recente)
@@ -40,40 +40,33 @@ const Index = () => {
     });
   }, [episodes]);
 
-  // Filtrar episódios baseado nos termos de busca
+  // Filtrar episódios baseado no termo de busca
   const filteredEpisodes = useMemo(() => {
+    if (!searchTerm.trim()) return episodes;
+    
     return episodes.filter(episode => {
-      // Filtro por episódio (título e descrição)
-      const episodeMatch = !episodeSearch.trim() || 
-        episode.title?.toLowerCase().includes(episodeSearch.toLowerCase()) ||
-        episode.description?.toLowerCase().includes(episodeSearch.toLowerCase());
+      const term = searchTerm.toLowerCase();
       
-      // Filtro por ano
-      const yearMatch = !yearSearch.trim() || 
-        episode.year.toString().includes(yearSearch);
+      // Buscar no título e descrição do episódio
+      const titleMatch = episode.title?.toLowerCase().includes(term);
+      const descMatch = episode.description?.toLowerCase().includes(term);
       
-      // Filtro por console (buscar no título, descrição e eventos da timeline)
-      const consoleMatch = !consoleSearch.trim() || (() => {
-        const term = consoleSearch.toLowerCase();
-        const titleMatch = episode.title?.toLowerCase().includes(term);
-        const descMatch = episode.description?.toLowerCase().includes(term);
-        
-        // Buscar nos eventos da timeline
-        const timelineEvents = Array.isArray(episode.timeline_events) 
-          ? episode.timeline_events 
-          : JSON.parse(episode.timeline_events || '[]');
-        
-        const timelineMatch = timelineEvents.some((event: any) => 
-          event.title?.toLowerCase().includes(term) ||
-          event.description?.toLowerCase().includes(term)
-        );
-        
-        return titleMatch || descMatch || timelineMatch;
-      })();
+      // Buscar no ano
+      const yearMatch = episode.year.toString().includes(term);
       
-      return episodeMatch && yearMatch && consoleMatch;
+      // Buscar nos eventos da timeline
+      const timelineEvents = Array.isArray(episode.timeline_events) 
+        ? episode.timeline_events 
+        : JSON.parse(episode.timeline_events || '[]');
+      
+      const timelineMatch = timelineEvents.some((event: any) => 
+        event.title?.toLowerCase().includes(term) ||
+        event.description?.toLowerCase().includes(term)
+      );
+      
+      return titleMatch || descMatch || yearMatch || timelineMatch;
     });
-  }, [episodes, episodeSearch, yearSearch, consoleSearch]);
+  }, [episodes, searchTerm]);
 
   const handleEpisodeClick = (episode: Episode) => {
     setSelectedEpisode(episode);
@@ -122,43 +115,72 @@ const Index = () => {
     return { episodes, historicalEvents };
   };
 
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "A Dita História do Videogame",
+    "description": "Uma jornada épica através da história dos videogames. Timeline interativa com episódios sobre a evolução dos games.",
+    "url": "https://aditahistoriadovideogame.lovable.app",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://aditahistoriadovideogame.lovable.app/?search={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  };
+
   return (
     <div className="min-h-screen bg-retro-black text-white">
+      <SEOHead 
+        title="A Dita História do Videogame - Timeline Interativa dos Games"
+        description="Explore a história completa dos videogames através de nossa timeline interativa. Episódios sobre consoles, jogos e a evolução da indústria gamer desde 1970."
+        keywords="videogame, história, games, podcast, timeline, nintendo, playstation, xbox, atari, consoles, jogos"
+        canonicalUrl="https://aditahistoriadovideogame.lovable.app"
+        structuredData={structuredData}
+      />
       <Header onAdminClick={() => window.location.href = '/admin/login'} />
       
       <main className="container mx-auto px-4 py-8">
-        {/* Hero Section with Logo */}
-        <section className="text-center mb-16 animate-fade-in-up">
-          <div className="mb-8">
-            <img 
-              src="https://i.postimg.cc/wBSDgDnh/a-dita-histpria-do-videogame.jpg"
-              alt="A Dita História do Videogame"
-              className="mx-auto max-w-md w-full h-auto rounded-lg border-2 border-retro-yellow shadow-lg shadow-retro-yellow/20"
-            />
-          </div>
-          <p className="font-mono text-lg md:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-            Uma jornada épica através da história dos videogames. Sem deixar nenhum pixel para trás. 
-            Explore nossa timeline interativa e descubra como os games moldaram nossa cultura.
-          </p>
-        </section>
+        {loading ? (
+          <>
+            <LoadingSkeleton type="hero" />
+            <LoadingSkeleton type="statistics" />
+          </>
+        ) : (
+          <>
+            {/* Hero Section with Logo */}
+            <section className="text-center mb-16 animate-fade-in-up">
+              <div className="mb-8">
+                <img 
+                  src="https://i.postimg.cc/wBSDgDnh/a-dita-histpria-do-videogame.jpg"
+                  alt="A Dita História do Videogame"
+                  className="mx-auto max-w-md w-full h-auto rounded-lg border-2 border-retro-yellow shadow-lg shadow-retro-yellow/20"
+                />
+              </div>
+              <p className="font-mono text-lg md:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+                Uma jornada épica através da história dos videogames. Sem deixar nenhum pixel para trás. 
+                Explore nossa timeline interativa e descubra como os games moldaram nossa cultura.
+              </p>
+            </section>
 
-        {/* Statistics */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-          <div className="retro-card p-6 text-center rounded-lg">
-            <div className="text-3xl font-bold text-retro-yellow mb-2">{episodes.length}</div>
-            <div className="text-gray-300 font-mono">Episódios</div>
-          </div>
-          <div className="retro-card p-6 text-center rounded-lg">
-            <div className="text-3xl font-bold text-retro-blue mb-2">
-              {episodes.length > 0 ? episodes[episodes.length - 1].year - episodes[0].year + 1 : 0}
-            </div>
-            <div className="text-gray-300 font-mono">Anos de História</div>
-          </div>
-          <div className="retro-card p-6 text-center rounded-lg">
-            <div className="text-3xl font-bold text-retro-yellow mb-2">∞</div>
-            <div className="text-gray-300 font-mono">Nostalgia</div>
-          </div>
-        </section>
+            {/* Statistics */}
+            <section className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+              <div className="retro-card p-6 text-center rounded-lg">
+                <div className="text-3xl font-bold text-retro-yellow mb-2">{episodes.length}</div>
+                <div className="text-gray-300 font-mono">Episódios</div>
+              </div>
+              <div className="retro-card p-6 text-center rounded-lg">
+                <div className="text-3xl font-bold text-retro-blue mb-2">
+                  {episodes.length > 0 ? episodes[episodes.length - 1].year - episodes[0].year + 1 : 0}
+                </div>
+                <div className="text-gray-300 font-mono">Anos de História</div>
+              </div>
+              <div className="retro-card p-6 text-center rounded-lg">
+                <div className="text-3xl font-bold text-retro-yellow mb-2">∞</div>
+                <div className="text-gray-300 font-mono">Nostalgia</div>
+              </div>
+            </section>
+          </>
+        )}
 
 
         {/* Search Section */}
@@ -167,60 +189,25 @@ const Index = () => {
             TIMELINE INTERATIVA
           </h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
-            <div>
-              <Label htmlFor="episode-search" className="font-mono text-gray-300 mb-2 block">
-                Buscar por episódio:
-              </Label>
-              <Input
-                id="episode-search"
-                type="text"
-                value={episodeSearch}
-                onChange={(e) => setEpisodeSearch(e.target.value)}
-                placeholder="Digite o nome do episódio..."
-                className="bg-retro-black border-retro-blue text-white placeholder-gray-400 focus:border-retro-yellow"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="year-search" className="font-mono text-gray-300 mb-2 block">
-                Buscar pelo ano:
-              </Label>
-              <Input
-                id="year-search"
-                type="text"
-                value={yearSearch}
-                onChange={(e) => setYearSearch(e.target.value)}
-                placeholder="Ex: 1985, 1990..."
-                className="bg-retro-black border-retro-blue text-white placeholder-gray-400 focus:border-retro-yellow"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="console-search" className="font-mono text-gray-300 mb-2 block">
-                Buscar pelo console:
-              </Label>
-              <Input
-                id="console-search"
-                type="text"
-                value={consoleSearch}
-                onChange={(e) => setConsoleSearch(e.target.value)}
-                placeholder="Ex: Nintendo, PlayStation..."
-                className="bg-retro-black border-retro-blue text-white placeholder-gray-400 focus:border-retro-yellow"
-              />
-            </div>
+          <div className="max-w-md mx-auto">
+            <Label htmlFor="search" className="font-mono text-gray-300 mb-2 block text-center">
+              Buscar nos episódios:
+            </Label>
+            <Input
+              id="search"
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Episódio, ano, console..."
+              className="bg-retro-black border-retro-blue text-white placeholder-gray-400 focus:border-retro-yellow text-center"
+            />
           </div>
         </section>
 
         {/* Timeline Section */}
         {loading ? (
-          <div className="text-center py-16">
-            <div className="animate-spin text-4xl mb-4">🎮</div>
-            <p className="font-mono text-gray-400">
-              Carregando episódios...
-            </p>
-          </div>
-        ) : filteredEpisodes.length === 0 && (episodeSearch || yearSearch || consoleSearch) ? (
+          <LoadingSkeleton type="timeline" />
+        ) : filteredEpisodes.length === 0 && searchTerm ? (
           <div className="text-center py-16">
             <div className="text-4xl mb-4">🔍</div>
             <p className="font-mono text-gray-400 mb-2">
