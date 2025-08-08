@@ -185,7 +185,7 @@ const Index = () => {
 
         {/* Search Section */}
         <section className="mb-12">
-          <h2 id="timeline" className="font-retro text-3xl text-center text-retro-yellow mb-8">
+          <h2 id="timeline" className="font-retro text-5xl text-center text-retro-yellow mb-8">
             TIMELINE INTERATIVA
           </h2>
           
@@ -233,12 +233,12 @@ const Index = () => {
             © A DITA HISTÓRIA DO VIDEOGAME 2020-2025.
           </div>
           <div className="font-mono text-sm">
-            <a 
-              href="mailto:aditahitoriadovideogame@gmail.com" 
-              className="text-primary hover:text-primary/80 transition-colors underline underline-offset-4"
+            <Button
+              onClick={() => window.location.href = 'mailto:aditahitoriadovideogame@gmail.com'}
+              className="retro-button font-mono"
             >
-              Entre em contato.
-            </a>
+              Entre em contato
+            </Button>
           </div>
         </div>
       </footer>
