@@ -145,10 +145,6 @@ const TimelineSection = ({ episodes, onEpisodeClick, onYearClick }: TimelineSect
   
   return (
     <section id="timeline" className="mb-16">
-      <h2 className="font-retro text-3xl md:text-4xl text-center mb-12 text-retro-yellow">
-        TIMELINE INTERATIVA
-      </h2>
-      
       {/* Desktop Timeline */}
       <DesktopTimeline
         yearGroups={yearGroups}
