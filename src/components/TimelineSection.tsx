@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Episode } from '@/hooks/useEpisodes';
 import DesktopTimeline from './timeline/DesktopTimeline';
-import MobileTimeline from './timeline/MobileTimeline';
+import SwipeableMobileTimeline from './timeline/SwipeableMobileTimeline';
 import TimelineTooltip from './timeline/TimelineTooltip';
 
 interface TimelineSectionProps {
@@ -155,7 +155,7 @@ const TimelineSection = ({ episodes, onEpisodeClick, onYearClick }: TimelineSect
       />
 
       {/* Mobile Timeline */}
-      <MobileTimeline
+      <SwipeableMobileTimeline
         yearGroups={yearGroups}
         onEpisodeClick={onEpisodeClick}
         onYearClick={onYearClick}

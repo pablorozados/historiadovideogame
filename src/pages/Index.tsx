@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +10,7 @@ import Header from '@/components/Header';
 import LoadingSkeleton from '@/components/LoadingSkeleton';
 import SEOHead from '@/components/SEOHead';
 import { useEpisodes, Episode } from '@/hooks/useEpisodes';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 interface YearGroup {
   year: number;
@@ -29,6 +30,7 @@ const Index = () => {
   const [selectedYear, setSelectedYear] = useState<YearGroup | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const { episodes, loading } = useEpisodes();
+  const { trackEpisodeClick, trackSearch, trackYearClick, trackPodcastListen, trackImageView } = useAnalytics();
 
   // Obter o último episódio (mais recente)
   const latestEpisode = useMemo(() => {
@@ -69,11 +71,13 @@ const Index = () => {
   }, [episodes, searchTerm]);
 
   const handleEpisodeClick = (episode: Episode) => {
+    trackEpisodeClick(episode.title, episode.year);
     setSelectedEpisode(episode);
     setSelectedYear(null);
   };
 
   const handleYearClick = (yearGroup: YearGroup) => {
+    trackYearClick(yearGroup.year, yearGroup.events.length);
     if (yearGroup.events.length === 1) {
       // Se só tem um evento, abre diretamente o episódio
       setSelectedEpisode(yearGroup.events[0].episode);
@@ -89,6 +93,7 @@ const Index = () => {
   };
 
   const handleImageClick = (imageUrl: string, title: string) => {
+    trackImageView(imageUrl, title);
     const modal = document.createElement('div');
     modal.className = 'fixed inset-0 bg-black/95 z-[10000] flex items-center justify-center p-4 cursor-pointer';
     modal.onclick = () => modal.remove();
